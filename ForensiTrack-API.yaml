@@ -1,0 +1,1234 @@
+openapi: 3.0.3
+info:
+  title: ForensiTrack Adli Bilişim Platformu API
+  version: 1.0.0
+  description: >
+    Bu API, ForensiTrack adli bilişim platformunun tüm temel işlevlerini kapsayan
+    bir RESTful servistir. Kullanıcı kaydı ve JWT tabanlı kimlik doğrulaması (G1, G2),
+    ilan yönetimi, arama ve filtreleme (G3, G4, G5, G6, G9, G10), vaka takip ve
+    önceliklendirme (G7, G8, G13, G16), adli bilişim araç rehberi (G11, G12) ve
+    hizmet değerlendirme ile yorum işlemleri (G14, G15) kapsamaktadır. Tüm korumalı
+    endpoint'ler JWT Bearer token ile güvence altına alınmıştır.
+  contact:
+    name: Yigit Bayraktar & Ummuhan Atmaca
+    email: yigit@forensitrack.com
+
+servers:
+  - url: http://localhost:3001
+    description: Yerel Mock Sunucusu - Prism (Swagger ile test için)
+  - url: https://forensitrack.api.com
+    description: Üretim sunucusu (Production)
+  - url: https://staging.forensitrack.api.com
+    description: Test sunucusu (Staging)
+  - url: http://localhost:3000
+    description: Yerel geliştirme sunucusu (Development)
+
+tags:
+  - name: Auth
+    description: Kullanıcı kaydı ve JWT tabanlı kimlik doğrulama işlemleri (G1, G2)
+  - name: Ilanlar
+    description: İlan ekleme, listeleme, güncelleme, silme, arama ve filtreleme işlemleri (G3, G4, G5, G6, G9, G10)
+  - name: Vakalar
+    description: Vaka oluşturma, önceliklendirme, durum güncelleme ve not ekleme işlemleri (G7, G8, G13, G16)
+  - name: Araclar
+    description: Adli bilişim araç listeleme ve detay görüntüleme işlemleri (G11, G12)
+  - name: Degerlendirmeler
+    description: Uzman hizmetine puan verme ve yorum yapma işlemleri (G14, G15)
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Kayıt Olma (G1)
+      operationId: registerUser
+      security: []
+      description: Uzmanların sisteme yeni hesap açmasını sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInput'
+      responses:
+        "201":
+          description: Kullanıcı başarıyla oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        "400":
+          description: Geçersiz istek verisi (eksik veya hatalı alan)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "409":
+          description: Bu e-posta adresi zaten kayıtlı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Giriş Yapma (G2)
+      operationId: loginUser
+      security: []
+      description: Kayıtlı uzmanların sisteme erişim sağlamasını sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        "200":
+          description: Giriş başarılı, JWT token oluşturuldu
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (hatalı e-posta veya şifre)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/ads:
+    get:
+      tags:
+        - Ilanlar
+      summary: İlan Listeleme (G4)
+      operationId: listAds
+      description: Yayındaki tüm hizmet ilanlarının görüntülenmesini sağlar.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Sayfa numarası (varsayılan 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Sayfa başına ilan sayısı (varsayılan 10, maksimum 50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+          example: 10
+      responses:
+        "200":
+          description: İlanlar başarıyla listelendi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Ilanlar
+      summary: İlan Ekleme (G3)
+      operationId: createAd
+      description: Uzmanın yeni bir hizmet ilanı oluşturmasını sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdInput'
+      responses:
+        "201":
+          description: İlan başarıyla yayına alındı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ad'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: Bu işlem için yetkiniz bulunmuyor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/ads/search:
+    get:
+      tags:
+        - Ilanlar
+      summary: İlan Arama (G9)
+      operationId: searchAds
+      description: Kullanıcıların kelime bazlı ilan sorgulamasını sağlar.
+      parameters:
+        - name: query
+          in: query
+          required: true
+          description: Başlık veya açıklama içinde aranacak kelime ya da ifade
+          schema:
+            type: string
+            minLength: 2
+          example: "ram analizi"
+        - name: page
+          in: query
+          required: false
+          description: Sayfa numarası (varsayılan 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Sayfa başına sonuç sayısı (varsayılan 10, maksimum 50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+          example: 10
+      responses:
+        "200":
+          description: Arama sonuçları başarıyla listelendi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+        "400":
+          description: Geçersiz arama parametresi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/ads/filter:
+    get:
+      tags:
+        - Ilanlar
+      summary: İlan Filtreleme (G10)
+      operationId: filterAds
+      description: İlanların kategoriye göre ayrıştırılmasını sağlar.
+      parameters:
+        - name: category
+          in: query
+          required: true
+          description: Filtreleme yapılacak ilan kategorisi
+          schema:
+            type: string
+            enum:
+              - Bellek Adli Bilisimi
+              - Disk Adli Bilisimi
+              - Mobil Adli Bilisimi
+              - Ag Adli Bilisimi
+              - Bulut Adli Bilisimi
+          example: "Disk Adli Bilisimi"
+        - name: page
+          in: query
+          required: false
+          description: Sayfa numarası (varsayılan 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Sayfa başına sonuç sayısı (varsayılan 10, maksimum 50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+          example: 10
+      responses:
+        "200":
+          description: Filtrelenmiş ilanlar başarıyla listelendi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ad'
+        "400":
+          description: Geçersiz filtre parametresi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/ads/{adId}:
+    parameters:
+      - name: adId
+        in: path
+        required: true
+        description: İlanın benzersiz kimlik numarası
+        schema:
+          type: string
+        example: "ad_501"
+
+    put:
+      tags:
+        - Ilanlar
+      summary: İlan Güncelleme (G5)
+      operationId: updateAd
+      description: Uzmanın kendi ilan bilgilerini değiştirmesini sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdInput'
+      responses:
+        "200":
+          description: İlan başarıyla güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ad'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: Bu işlem için yetkiniz bulunmuyor (sadece ilan sahibi güncelleyebilir)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: İlan bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - Ilanlar
+      summary: İlan Silme (G6)
+      operationId: deleteAd
+      description: Uzmanın kendi ilanını sistemden kaldırmasını sağlar.
+      responses:
+        "204":
+          description: İlan başarıyla silindi
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: Bu işlem için yetkiniz bulunmuyor (sadece ilan sahibi silebilir)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: İlan bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/cases:
+    post:
+      tags:
+        - Vakalar
+      summary: Vaka Oluşturma (G7)
+      operationId: createCase
+      description: Yeni bir adli vaka dosyasının tanımlanmasını sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseInput'
+      responses:
+        "201":
+          description: Vaka başarıyla oluşturuldu ve takip numarası atandı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: Bu işlem için yetkiniz bulunmuyor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/cases/{caseId}/priority:
+    parameters:
+      - name: caseId
+        in: path
+        required: true
+        description: Vakanın benzersiz kimlik numarası
+        schema:
+          type: string
+        example: "FT-2026-001"
+
+    patch:
+      tags:
+        - Vakalar
+      summary: Vaka Önceliklendirme (G8)
+      operationId: updateCasePriority
+      description: Vakanın önem derecesinin belirlenmesini sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriorityUpdate'
+      responses:
+        "200":
+          description: Öncelik seviyesi başarıyla güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: Bu işlem için yetkiniz bulunmuyor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Vaka bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/cases/{caseId}/status:
+    parameters:
+      - name: caseId
+        in: path
+        required: true
+        description: Vakanın benzersiz kimlik numarası
+        schema:
+          type: string
+        example: "FT-2026-001"
+
+    patch:
+      tags:
+        - Vakalar
+      summary: Vaka Durum Güncelleme (G13)
+      operationId: updateCaseStatus
+      description: Vakanın "Çözüldü" veya "Açık" olarak işaretlenmesini sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StatusUpdate'
+      responses:
+        "200":
+          description: Vaka durumu başarıyla güncellendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Case'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: Bu işlem için yetkiniz bulunmuyor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Vaka bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/cases/{caseId}/notes:
+    parameters:
+      - name: caseId
+        in: path
+        required: true
+        description: Notun ekleneceği vakanın kimlik numarası
+        schema:
+          type: string
+        example: "FT-2026-001"
+
+    post:
+      tags:
+        - Vakalar
+      summary: Not Ekleme (G16)
+      operationId: addCaseNote
+      description: Vaka dosyasına teknik inceleme notu eklenmesini sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseNoteInput'
+      responses:
+        "201":
+          description: Teknik not vaka geçmişine başarıyla eklendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseNote'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Vaka bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/tools:
+    get:
+      tags:
+        - Araclar
+      summary: Araç Listeleme (G11)
+      operationId: listTools
+      description: Adli bilişim araçlarının listelenmesini sağlar.
+      parameters:
+        - name: category
+          in: query
+          required: false
+          description: Araçları kategoriye göre filtreler
+          schema:
+            type: string
+            enum:
+              - Bellek Analizi
+              - Disk Analizi
+              - Ag Analizi
+              - Mobil Analiz
+              - Sifreleme
+          example: "Bellek Analizi"
+        - name: page
+          in: query
+          required: false
+          description: Sayfa numarası (varsayılan 1)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Sayfa başına araç sayısı (varsayılan 10, maksimum 50)
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 10
+          example: 10
+      responses:
+        "200":
+          description: Araç listesi başarıyla getirildi
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tool'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/tools/{toolId}:
+    parameters:
+      - name: toolId
+        in: path
+        required: true
+        description: Aracın benzersiz kimlik numarası
+        schema:
+          type: string
+        example: "tool_volatility3"
+
+    get:
+      tags:
+        - Araclar
+      summary: Araç Detay Görüntüleme (G12)
+      operationId: getTool
+      description: Bir aracın teknik bilgilerinin okunmasını sağlar.
+      responses:
+        "200":
+          description: Araç detayları başarıyla getirildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tool'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: Araç bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/reviews/rate:
+    post:
+      tags:
+        - Degerlendirmeler
+      summary: Puan Verme (G14)
+      operationId: rateService
+      description: Uzman hizmetine 1-5 arası puan verilmesini sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateInput'
+      responses:
+        "201":
+          description: Puan başarıyla kaydedildi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: İlan bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/reviews/comment:
+    post:
+      tags:
+        - Degerlendirmeler
+      summary: Yorum Yapma (G15)
+      operationId: commentOnService
+      description: Uzman hizmeti altına geri bildirim yazılmasını sağlar.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentInput'
+      responses:
+        "201":
+          description: Yorum başarıyla eklendi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        "400":
+          description: Geçersiz istek verisi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "404":
+          description: İlan bulunamadı
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: 'JWT tabanlı kimlik doğrulama. İstek başlığına "Authorization: Bearer <token>" formatında eklenmeli.'
+
+  schemas:
+    UserInput:
+      type: object
+      description: Yeni kullanıcı kaydı için gönderilecek veri
+      properties:
+        username:
+          type: string
+          description: Kullanıcı adı (benzersiz olmalı)
+          minLength: 3
+          maxLength: 50
+          example: "yigit_bayraktar"
+        email:
+          type: string
+          format: email
+          description: Kullanıcının e-posta adresi (benzersiz olmalı)
+          example: "yigit@forensitrack.com"
+        password:
+          type: string
+          description: Kullanıcı şifresi (en az 8 karakter)
+          minLength: 8
+          example: "Forensic!2026"
+        role:
+          type: string
+          description: Kullanıcı rolü
+          enum:
+            - uzman
+            - musteri
+            - admin
+          example: "uzman"
+      required:
+        - username
+        - email
+        - password
+
+    RegisterResponse:
+      type: object
+      description: Başarılı kayıt işlemi sonucunda dönen yanıt
+      properties:
+        message:
+          type: string
+          description: İşlem sonuç mesajı
+          example: "Kayit basarili"
+        userId:
+          type: string
+          description: Sisteme atanan benzersiz kullanıcı kimlik numarası
+          example: "FT-99"
+      required:
+        - message
+        - userId
+
+    LoginInput:
+      type: object
+      description: Kullanıcı girişi için gönderilecek kimlik bilgileri
+      properties:
+        email:
+          type: string
+          format: email
+          description: Kayıtlı e-posta adresi
+          example: "yigit@forensitrack.com"
+        password:
+          type: string
+          description: Kullanıcı şifresi
+          example: "Forensic!2026"
+      required:
+        - email
+        - password
+
+    LoginResponse:
+      type: object
+      description: Başarılı giriş işlemi sonucunda dönen JWT token bilgisi
+      properties:
+        token:
+          type: string
+          description: Korumalı endpoint'lere erişim için kullanılacak JWT token
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJGVC05OSIsInJvbGUiOiJ1emthbiIsImlhdCI6MTcwNzQ4MDAwMH0.abc123"
+        expiresIn:
+          type: integer
+          description: Token geçerlilik süresi (saniye cinsinden)
+          example: 86400
+      required:
+        - token
+
+    Ad:
+      type: object
+      description: Adli bilişim hizmet ilanını temsil eden model
+      properties:
+        _id:
+          type: string
+          description: İlanın benzersiz kimlik numarası (otomatik atanır)
+          example: "ad_501"
+        title:
+          type: string
+          description: İlan başlığı
+          example: "Mobil Cihaz Adli Analizi Hizmeti"
+        description:
+          type: string
+          description: İlan açıklaması
+          example: "Android ve iOS cihazlar için kapsamlı adli analiz hizmetleri sunulmaktadır."
+        price:
+          type: number
+          format: float
+          description: Hizmet ücreti (TL cinsinden)
+          minimum: 0
+          example: 4500.00
+        category:
+          type: string
+          description: İlan kategorisi
+          enum:
+            - Bellek Adli Bilisimi
+            - Disk Adli Bilisimi
+            - Mobil Adli Bilisimi
+            - Ag Adli Bilisimi
+            - Bulut Adli Bilisimi
+          example: "Mobil Adli Bilisimi"
+        averageRating:
+          type: number
+          format: float
+          description: İlanın ortalama değerlendirme puanı (1-5 arası)
+          minimum: 1
+          maximum: 5
+          example: 4.7
+        owner:
+          type: string
+          description: İlanı yayınlayan kullanıcının kimlik numarası
+          example: "FT-99"
+        createdAt:
+          type: string
+          format: date-time
+          description: İlanın oluşturulma tarihi (ISO 8601 formatında)
+          example: "2026-03-09T10:00:00Z"
+      required:
+        - title
+        - description
+        - price
+        - category
+
+    AdInput:
+      type: object
+      description: İlan oluşturma veya güncelleme için gönderilecek veri
+      properties:
+        title:
+          type: string
+          description: İlan başlığı
+          minLength: 5
+          maxLength: 150
+          example: "Mobil Cihaz Adli Analizi Hizmeti"
+        description:
+          type: string
+          description: İlan açıklaması
+          minLength: 20
+          maxLength: 2000
+          example: "Android ve iOS cihazlar için kapsamlı adli analiz hizmetleri sunulmaktadır."
+        price:
+          type: number
+          format: float
+          description: Hizmet ücreti (TL cinsinden)
+          minimum: 0
+          example: 4500.00
+        category:
+          type: string
+          description: İlan kategorisi
+          enum:
+            - Bellek Adli Bilisimi
+            - Disk Adli Bilisimi
+            - Mobil Adli Bilisimi
+            - Ag Adli Bilisimi
+            - Bulut Adli Bilisimi
+          example: "Mobil Adli Bilisimi"
+      required:
+        - title
+        - description
+        - price
+        - category
+
+    Case:
+      type: object
+      description: Adli bilişim vaka dosyasını temsil eden model
+      properties:
+        _id:
+          type: string
+          description: Vakanın benzersiz takip numarası (otomatik atanır)
+          example: "FT-2026-001"
+        title:
+          type: string
+          description: Vaka başlığı
+          example: "Kurumsal Veri Sızıntısı İncelemesi"
+        description:
+          type: string
+          description: Vakanın ayrıntılı açıklaması
+          example: "Bir şirketin sunucularından hassas verilerin sızdırılması şüphesiyle açılan vaka."
+        priority:
+          type: string
+          description: Vakanın öncelik seviyesi
+          enum:
+            - Kritik
+            - Yuksek
+            - Orta
+            - Dusuk
+          example: "Kritik"
+        status:
+          type: string
+          description: Vakanın mevcut durumu
+          enum:
+            - Acik
+            - Cozuldu
+            - Incelemede
+          example: "Incelemede"
+        assignedExpert:
+          type: string
+          description: Vakaya atanan uzmanın kimlik numarası
+          example: "FT-99"
+        createdAt:
+          type: string
+          format: date-time
+          description: Vakanın oluşturulma tarihi (ISO 8601 formatında)
+          example: "2026-03-09T09:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Vakanın en son güncellenme tarihi (ISO 8601 formatında)
+          example: "2026-03-09T16:00:00Z"
+      required:
+        - title
+        - description
+        - priority
+        - status
+
+    CaseInput:
+      type: object
+      description: Yeni vaka oluşturma için gönderilecek veri
+      properties:
+        title:
+          type: string
+          description: Vaka başlığı
+          minLength: 5
+          maxLength: 200
+          example: "Kurumsal Veri Sızıntısı İncelemesi"
+        description:
+          type: string
+          description: Vakanın ayrıntılı açıklaması
+          minLength: 20
+          maxLength: 3000
+          example: "Bir şirketin sunucularından hassas verilerin sızdırılması şüphesiyle açılan vaka."
+        priority:
+          type: string
+          description: Vakanın öncelik seviyesi
+          enum:
+            - Kritik
+            - Yuksek
+            - Orta
+            - Dusuk
+          example: "Yuksek"
+        assignedExpert:
+          type: string
+          description: Vakaya atanacak uzmanın kimlik numarası
+          example: "FT-99"
+      required:
+        - title
+        - description
+        - priority
+
+    PriorityUpdate:
+      type: object
+      description: Vaka öncelik seviyesi güncelleme için gönderilecek veri
+      properties:
+        priority:
+          type: string
+          description: Yeni öncelik seviyesi
+          enum:
+            - Kritik
+            - Yuksek
+            - Orta
+            - Dusuk
+          example: "Kritik"
+      required:
+        - priority
+
+    StatusUpdate:
+      type: object
+      description: Vaka durumu güncelleme için gönderilecek veri
+      properties:
+        status:
+          type: string
+          description: Yeni vaka durumu
+          enum:
+            - Acik
+            - Cozuldu
+            - Incelemede
+          example: "Cozuldu"
+      required:
+        - status
+
+    CaseNote:
+      type: object
+      description: Vaka teknik analiz notunu temsil eden model
+      properties:
+        _id:
+          type: string
+          description: Notun benzersiz kimlik numarası (otomatik atanır)
+          example: "note_42"
+        author:
+          type: string
+          description: Notu ekleyen uzmanın kimlik numarası
+          example: "FT-99"
+        note:
+          type: string
+          description: Teknik analiz notu içeriği
+          example: "Disk imajı SHA-256 hash doğrulaması tamamlandı. Bellek dökümü analizi başlatıldı."
+        createdAt:
+          type: string
+          format: date-time
+          description: Notun eklenme tarihi (ISO 8601 formatında)
+          example: "2026-03-09T15:45:00Z"
+      required:
+        - author
+        - note
+
+    CaseNoteInput:
+      type: object
+      description: Vakaya teknik not eklemek için gönderilecek veri
+      properties:
+        note:
+          type: string
+          description: Teknik analiz notu içeriği
+          minLength: 10
+          maxLength: 2000
+          example: "Disk imajı SHA-256 hash doğrulaması tamamlandı. Bellek dökümü analizi başlatıldı."
+      required:
+        - note
+
+    Tool:
+      type: object
+      description: Adli bilişim yazılım aracını temsil eden model
+      properties:
+        _id:
+          type: string
+          description: Aracın benzersiz kimlik numarası
+          example: "tool_volatility3"
+        name:
+          type: string
+          description: Aracın adı
+          example: "Volatility 3"
+        version:
+          type: string
+          description: Mevcut kararlı sürüm numarası
+          example: "2.6.1"
+        category:
+          type: string
+          description: Aracın adli bilişim kategorisi
+          enum:
+            - Bellek Analizi
+            - Disk Analizi
+            - Ag Analizi
+            - Mobil Analiz
+            - Sifreleme
+          example: "Bellek Analizi"
+        description:
+          type: string
+          description: Aracın teknik açıklaması ve kullanım amacı
+          example: "Açık kaynaklı bellek adli bilişim framework'ü. RAM dökümlerinden artefakt çıkarma ve analiz için kullanılır."
+        supportedOS:
+          type: array
+          description: Aracın desteklediği işletim sistemleri
+          items:
+            type: string
+          example: ["Windows", "Linux", "macOS"]
+        licenseType:
+          type: string
+          description: Aracın lisans türü
+          enum:
+            - Ucretsiz
+            - Acik Kaynak
+            - Ticari
+            - Deneme Surumu
+          example: "Acik Kaynak"
+        officialUrl:
+          type: string
+          format: uri
+          description: Aracın resmi web sitesi veya dokümantasyon adresi
+          example: "https://github.com/volatilityfoundation/volatility3"
+      required:
+        - name
+        - category
+        - description
+
+    Review:
+      type: object
+      description: Uzman hizmetine yapılan değerlendirmeyi temsil eden model
+      properties:
+        _id:
+          type: string
+          description: Değerlendirmenin benzersiz kimlik numarası (otomatik atanır)
+          example: "rev_88"
+        adId:
+          type: string
+          description: Değerlendirmenin yapıldığı ilanın kimlik numarası
+          example: "ad_501"
+        author:
+          type: string
+          description: Değerlendirmeyi yapan kullanıcının kimlik numarası
+          example: "FT-77"
+        rating:
+          type: integer
+          description: Kullanıcının verdiği puan (1-5 arası)
+          minimum: 1
+          maximum: 5
+          example: 5
+        comment:
+          type: string
+          description: Yazılan yorum metni
+          example: "Analiz raporu son derece detaylı ve profesyoneldi."
+        createdAt:
+          type: string
+          format: date-time
+          description: Değerlendirmenin oluşturulma tarihi (ISO 8601 formatında)
+          example: "2026-03-09T14:30:00Z"
+      required:
+        - adId
+        - author
+
+    RateInput:
+      type: object
+      description: Uzman hizmetine puan vermek için gönderilecek veri
+      properties:
+        adId:
+          type: string
+          description: Puan verilecek ilanın kimlik numarası
+          example: "ad_501"
+        rating:
+          type: integer
+          description: Verilecek puan (1-5 arası)
+          minimum: 1
+          maximum: 5
+          example: 5
+      required:
+        - adId
+        - rating
+
+    CommentInput:
+      type: object
+      description: Uzman hizmetine yorum yazmak için gönderilecek veri
+      properties:
+        adId:
+          type: string
+          description: Yorum yapılacak ilanın kimlik numarası
+          example: "ad_501"
+        comment:
+          type: string
+          description: Yorum metni
+          minLength: 5
+          maxLength: 500
+          example: "Analiz raporu son derece detaylı ve profesyoneldi. Kesinlikle tavsiye ederim."
+      required:
+        - adId
+        - comment
+
+    Error:
+      type: object
+      description: Hata durumlarında döndürülen standart hata yanıtı
+      properties:
+        message:
+          type: string
+          description: Hatayı açıklayan mesaj
+          example: "Aranan kaynak bulunamadı"
+        code:
+          type: integer
+          description: HTTP durum kodu
+          example: 404
+      required:
+        - message
