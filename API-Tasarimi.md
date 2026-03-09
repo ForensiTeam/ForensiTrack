@@ -1,8 +1,9 @@
-# API Tasarımı - OpenAPI Specification Örneği
+# API Tasarımı - ForensiTrack OpenAPI Specification
 
-**OpenAPI Spesifikasyon Dosyası:** [lamine.yaml](lamine.yaml)
+**OpenAPI Spesifikasyon Dosyası:** [ForensiTrack-API.yaml](ForensiTrack-API.yaml)
 
-Bu doküman, OpenAPI Specification (OAS) 3.0 standardına göre hazırlanmış örnek bir API tasarımını içermektedir.
+Bu doküman, ForensiTrack adli bilişim platformu için OpenAPI Specification (OAS) 3.0 standardına göre hazırlanmış API tasarımını içermektedir.
+
 
 ## OpenAPI Specification
 
