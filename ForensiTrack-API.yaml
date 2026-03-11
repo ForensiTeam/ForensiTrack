@@ -14,7 +14,7 @@ info:
     email: yigit@forensitrack.com
 
 servers:
-  - url: https://e49102fe-a427-47fc-8c36-ed96f6e4229b.mock.pstmn.io
+  - url: https://c6e49a4e-a7b5-43bc-ac6a-89be10f9cdbf.mock.pstmn.io
     description: Postman Mock Sunucusu (Aktif)
   - url: https://forensitrack.api.com
     description: Üretim sunucusu (Production)
