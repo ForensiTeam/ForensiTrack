@@ -5,17 +5,17 @@ info:
   description: >
     Bu API, ForensiTrack adli bilişim platformunun tüm temel işlevlerini kapsayan
     bir RESTful servistir. Kullanıcı kaydı ve JWT tabanlı kimlik doğrulaması (G1, G2),
-    ilan yönetimi, arama ve filtreleme (G3, G4, G5, G6, G9, G10), vaka takip ve
-    önceliklendirme (G7, G8, G13, G16), adli bilişim araç rehberi (G11, G12) ve
-    hizmet değerlendirme ile yorum işlemleri (G14, G15) kapsamaktadır. Tüm korumalı
+    ilan yönetimi, arama ve filtreleme (G3, G4, G5, G6, G7, G8), vaka takip ve
+    önceliklendirme (G9, G10, G11, G12), adli bilişim araç rehberi (G13, G14) ve
+    hizmet değerlendirme ile yorum işlemleri (G15, G16) kapsamaktadır. Tüm korumalı
     endpoint'ler JWT Bearer token ile güvence altına alınmıştır.
   contact:
     name: Yigit Bayraktar & Ummuhan Atmaca
     email: yigit@forensitrack.com
 
 servers:
-  - url: http://localhost:3001
-    description: Yerel Mock Sunucusu - Prism (Swagger ile test için)
+  - url: https://e49102fe-a427-47fc-8c36-ed96f6e4229b.mock.pstmn.io
+    description: Postman Mock Sunucusu (Aktif)
   - url: https://forensitrack.api.com
     description: Üretim sunucusu (Production)
   - url: https://staging.forensitrack.api.com
@@ -27,16 +27,16 @@ tags:
   - name: Auth
     description: Kullanıcı kaydı ve JWT tabanlı kimlik doğrulama işlemleri (G1, G2)
   - name: Ilanlar
-    description: İlan ekleme, listeleme, güncelleme, silme, arama ve filtreleme işlemleri (G3, G4, G5, G6, G9, G10)
+    description: İlan ekleme, listeleme, güncelleme, silme, arama ve filtreleme işlemleri (G3, G4, G5, G6, G7, G8)
   - name: Vakalar
-    description: Vaka oluşturma, önceliklendirme, durum güncelleme ve not ekleme işlemleri (G7, G8, G13, G16)
+    description: Vaka oluşturma, önceliklendirme, durum güncelleme ve not ekleme işlemleri (G9, G10, G11, G12)
   - name: Araclar
-    description: Adli bilişim araç listeleme ve detay görüntüleme işlemleri (G11, G12)
+    description: Adli bilişim araç listeleme ve detay görüntüleme işlemleri (G13, G14)
   - name: Degerlendirmeler
-    description: Uzman hizmetine puan verme ve yorum yapma işlemleri (G14, G15)
+    description: Uzman hizmetine puan verme ve yorum yapma işlemleri (G15, G16)
 
 security:
-  - BearerAuth: []
+  - bearerAuth: []
 
 paths:
   /api/auth/register:
@@ -53,6 +53,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UserInput'
+            example:
+              username: "yigit_bayraktar"
+              email: "yigit@forensitrack.com"
+              password: "Forensic!2026"
+              role: "uzman"
       responses:
         "201":
           description: Kullanıcı başarıyla oluşturuldu
@@ -87,6 +92,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LoginInput'
+            example:
+              email: "yigit@forensitrack.com"
+              password: "Forensic!2026"
       responses:
         "200":
           description: Giriş başarılı, JWT token oluşturuldu
@@ -162,6 +170,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AdInput'
+            example:
+              title: "RAM Analizi Hizmeti"
+              description: "Volatility3 ile bellek dökümü analizi yapılmaktadır."
+              price: 1500
+              category: "Bellek Adli Bilisimi"
       responses:
         "201":
           description: İlan başarıyla yayına alındı
@@ -192,7 +205,7 @@ paths:
     get:
       tags:
         - Ilanlar
-      summary: İlan Arama (G9)
+      summary: İlan Arama (G7)
       operationId: searchAds
       description: Kullanıcıların kelime bazlı ilan sorgulamasını sağlar.
       parameters:
@@ -249,7 +262,7 @@ paths:
     get:
       tags:
         - Ilanlar
-      summary: İlan Filtreleme (G10)
+      summary: İlan Filtreleme (G8)
       operationId: filterAds
       description: İlanların kategoriye göre ayrıştırılmasını sağlar.
       parameters:
@@ -329,6 +342,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AdInput'
+            example:
+              title: "Güncellenmiş RAM Analizi Hizmeti"
+              description: "Volatility3 ile detaylı bellek analizi yapılmaktadır."
+              price: 1800
+              category: "Bellek Adli Bilisimi"
       responses:
         "200":
           description: İlan başarıyla güncellendi
@@ -393,7 +411,7 @@ paths:
     post:
       tags:
         - Vakalar
-      summary: Vaka Oluşturma (G7)
+      summary: Vaka Oluşturma (G9)
       operationId: createCase
       description: Yeni bir adli vaka dosyasının tanımlanmasını sağlar.
       requestBody:
@@ -402,6 +420,11 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CaseInput'
+            example:
+              title: "Şirket Sunucusu İhlali"
+              description: "Sunucuya yetkisiz erişim şüphesiyle açılan vaka."
+              priority: "Yuksek"
+              assignedExpert: "FT-99"
       responses:
         "201":
           description: Vaka başarıyla oluşturuldu ve takip numarası atandı
@@ -441,7 +464,7 @@ paths:
     patch:
       tags:
         - Vakalar
-      summary: Vaka Önceliklendirme (G8)
+      summary: Vaka Önceliklendirme (G10)
       operationId: updateCasePriority
       description: Vakanın önem derecesinin belirlenmesini sağlar.
       requestBody:
@@ -450,6 +473,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PriorityUpdate'
+            example:
+              priority: "Kritik"
       responses:
         "200":
           description: Öncelik seviyesi başarıyla güncellendi
@@ -495,15 +520,17 @@ paths:
     patch:
       tags:
         - Vakalar
-      summary: Vaka Durum Güncelleme (G13)
+      summary: Vaka Durum Güncelleme (G11)
       operationId: updateCaseStatus
-      description: Vakanın "Çözüldü" veya "Açık" olarak işaretlenmesini sağlar.
+      description: Vakanın "Cozuldu" veya "Acik" olarak işaretlenmesini sağlar.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/StatusUpdate'
+            example:
+              status: "Cozuldu"
       responses:
         "200":
           description: Vaka durumu başarıyla güncellendi
@@ -549,7 +576,7 @@ paths:
     post:
       tags:
         - Vakalar
-      summary: Not Ekleme (G16)
+      summary: Not Ekleme (G12)
       operationId: addCaseNote
       description: Vaka dosyasına teknik inceleme notu eklenmesini sağlar.
       requestBody:
@@ -558,6 +585,8 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CaseNoteInput'
+            example:
+              note: "Volatility3 ile yapılan bellek analizi tamamlandı. Şüpheli process tespit edildi."
       responses:
         "201":
           description: Teknik not vaka geçmişine başarıyla eklendi
@@ -588,7 +617,7 @@ paths:
     get:
       tags:
         - Araclar
-      summary: Araç Listeleme (G11)
+      summary: Araç Listeleme (G13)
       operationId: listTools
       description: Adli bilişim araçlarının listelenmesini sağlar.
       parameters:
@@ -653,7 +682,7 @@ paths:
     get:
       tags:
         - Araclar
-      summary: Araç Detay Görüntüleme (G12)
+      summary: Araç Detay Görüntüleme (G14)
       operationId: getTool
       description: Bir aracın teknik bilgilerinin okunmasını sağlar.
       responses:
@@ -680,7 +709,7 @@ paths:
     post:
       tags:
         - Degerlendirmeler
-      summary: Puan Verme (G14)
+      summary: Puan Verme (G15)
       operationId: rateService
       description: Uzman hizmetine 1-5 arası puan verilmesini sağlar.
       requestBody:
@@ -689,6 +718,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RateInput'
+            example:
+              adId: "ad_501"
+              rating: 5
       responses:
         "201":
           description: Puan başarıyla kaydedildi
@@ -719,7 +751,7 @@ paths:
     post:
       tags:
         - Degerlendirmeler
-      summary: Yorum Yapma (G15)
+      summary: Yorum Yapma (G16)
       operationId: commentOnService
       description: Uzman hizmeti altına geri bildirim yazılmasını sağlar.
       requestBody:
@@ -728,6 +760,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CommentInput'
+            example:
+              adId: "ad_501"
+              comment: "Analiz raporu son derece detaylı ve profesyoneldi. Kesinlikle tavsiye ederim."
       responses:
         "201":
           description: Yorum başarıyla eklendi
@@ -756,16 +791,20 @@ paths:
 
 components:
   securitySchemes:
-    BearerAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: 'JWT tabanlı kimlik doğrulama. İstek başlığına "Authorization: Bearer <token>" formatında eklenmeli.'
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT tabanlı kimlik doğrulama. Giriş yapıldıktan sonra dönen token, istek başlığına "Authorization: Bearer <token>" formatında eklenmeli.'
 
   schemas:
     UserInput:
       type: object
       description: Yeni kullanıcı kaydı için gönderilecek veri
+      required:
+        - username
+        - email
+        - password
       properties:
         username:
           type: string
@@ -791,14 +830,13 @@ components:
             - musteri
             - admin
           example: "uzman"
-      required:
-        - username
-        - email
-        - password
 
     RegisterResponse:
       type: object
       description: Başarılı kayıt işlemi sonucunda dönen yanıt
+      required:
+        - message
+        - userId
       properties:
         message:
           type: string
@@ -808,13 +846,13 @@ components:
           type: string
           description: Sisteme atanan benzersiz kullanıcı kimlik numarası
           example: "FT-99"
-      required:
-        - message
-        - userId
 
     LoginInput:
       type: object
       description: Kullanıcı girişi için gönderilecek kimlik bilgileri
+      required:
+        - email
+        - password
       properties:
         email:
           type: string
@@ -825,13 +863,12 @@ components:
           type: string
           description: Kullanıcı şifresi
           example: "Forensic!2026"
-      required:
-        - email
-        - password
 
     LoginResponse:
       type: object
       description: Başarılı giriş işlemi sonucunda dönen JWT token bilgisi
+      required:
+        - token
       properties:
         token:
           type: string
@@ -841,12 +878,15 @@ components:
           type: integer
           description: Token geçerlilik süresi (saniye cinsinden)
           example: 86400
-      required:
-        - token
 
     Ad:
       type: object
       description: Adli bilişim hizmet ilanını temsil eden model
+      required:
+        - title
+        - description
+        - price
+        - category
       properties:
         _id:
           type: string
@@ -892,15 +932,15 @@ components:
           format: date-time
           description: İlanın oluşturulma tarihi (ISO 8601 formatında)
           example: "2026-03-09T10:00:00Z"
+
+    AdInput:
+      type: object
+      description: İlan oluşturma veya güncelleme için gönderilecek veri
       required:
         - title
         - description
         - price
         - category
-
-    AdInput:
-      type: object
-      description: İlan oluşturma veya güncelleme için gönderilecek veri
       properties:
         title:
           type: string
@@ -930,15 +970,15 @@ components:
             - Ag Adli Bilisimi
             - Bulut Adli Bilisimi
           example: "Mobil Adli Bilisimi"
-      required:
-        - title
-        - description
-        - price
-        - category
 
     Case:
       type: object
       description: Adli bilişim vaka dosyasını temsil eden model
+      required:
+        - title
+        - description
+        - priority
+        - status
       properties:
         _id:
           type: string
@@ -983,15 +1023,14 @@ components:
           format: date-time
           description: Vakanın en son güncellenme tarihi (ISO 8601 formatında)
           example: "2026-03-09T16:00:00Z"
-      required:
-        - title
-        - description
-        - priority
-        - status
 
     CaseInput:
       type: object
       description: Yeni vaka oluşturma için gönderilecek veri
+      required:
+        - title
+        - description
+        - priority
       properties:
         title:
           type: string
@@ -1018,14 +1057,12 @@ components:
           type: string
           description: Vakaya atanacak uzmanın kimlik numarası
           example: "FT-99"
-      required:
-        - title
-        - description
-        - priority
 
     PriorityUpdate:
       type: object
       description: Vaka öncelik seviyesi güncelleme için gönderilecek veri
+      required:
+        - priority
       properties:
         priority:
           type: string
@@ -1036,12 +1073,12 @@ components:
             - Orta
             - Dusuk
           example: "Kritik"
-      required:
-        - priority
 
     StatusUpdate:
       type: object
       description: Vaka durumu güncelleme için gönderilecek veri
+      required:
+        - status
       properties:
         status:
           type: string
@@ -1051,12 +1088,13 @@ components:
             - Cozuldu
             - Incelemede
           example: "Cozuldu"
-      required:
-        - status
 
     CaseNote:
       type: object
       description: Vaka teknik analiz notunu temsil eden model
+      required:
+        - author
+        - note
       properties:
         _id:
           type: string
@@ -1075,26 +1113,27 @@ components:
           format: date-time
           description: Notun eklenme tarihi (ISO 8601 formatında)
           example: "2026-03-09T15:45:00Z"
-      required:
-        - author
-        - note
 
     CaseNoteInput:
       type: object
       description: Vakaya teknik not eklemek için gönderilecek veri
+      required:
+        - note
       properties:
         note:
           type: string
           description: Teknik analiz notu içeriği
           minLength: 10
           maxLength: 2000
-          example: "Disk imajı SHA-256 hash doğrulaması tamamlandı. Bellek dökümü analizi başlatıldı."
-      required:
-        - note
+          example: "Volatility3 ile yapılan bellek analizi tamamlandı. Şüpheli process tespit edildi."
 
     Tool:
       type: object
       description: Adli bilişim yazılım aracını temsil eden model
+      required:
+        - name
+        - category
+        - description
       properties:
         _id:
           type: string
@@ -1142,14 +1181,13 @@ components:
           format: uri
           description: Aracın resmi web sitesi veya dokümantasyon adresi
           example: "https://github.com/volatilityfoundation/volatility3"
-      required:
-        - name
-        - category
-        - description
 
     Review:
       type: object
       description: Uzman hizmetine yapılan değerlendirmeyi temsil eden model
+      required:
+        - adId
+        - author
       properties:
         _id:
           type: string
@@ -1178,13 +1216,13 @@ components:
           format: date-time
           description: Değerlendirmenin oluşturulma tarihi (ISO 8601 formatında)
           example: "2026-03-09T14:30:00Z"
-      required:
-        - adId
-        - author
 
     RateInput:
       type: object
       description: Uzman hizmetine puan vermek için gönderilecek veri
+      required:
+        - adId
+        - rating
       properties:
         adId:
           type: string
@@ -1196,13 +1234,13 @@ components:
           minimum: 1
           maximum: 5
           example: 5
-      required:
-        - adId
-        - rating
 
     CommentInput:
       type: object
       description: Uzman hizmetine yorum yazmak için gönderilecek veri
+      required:
+        - adId
+        - comment
       properties:
         adId:
           type: string
@@ -1214,13 +1252,12 @@ components:
           minLength: 5
           maxLength: 500
           example: "Analiz raporu son derece detaylı ve profesyoneldi. Kesinlikle tavsiye ederim."
-      required:
-        - adId
-        - comment
 
     Error:
       type: object
       description: Hata durumlarında döndürülen standart hata yanıtı
+      required:
+        - message
       properties:
         message:
           type: string
@@ -1230,5 +1267,3 @@ components:
           type: integer
           description: HTTP durum kodu
           example: 404
-      required:
-        - message

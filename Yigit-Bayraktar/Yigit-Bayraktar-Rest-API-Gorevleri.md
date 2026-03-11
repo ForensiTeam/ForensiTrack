@@ -4,6 +4,7 @@
 
 ## 1. Kayıt Olma (G1)
 - **Endpoint:** `POST /api/auth/register`
+- **Authentication:** Gerekmez (public endpoint)
 - **Request Body:**
   ```json
   {
@@ -17,6 +18,7 @@
 
 ## 2. Giriş Yapma (G2)
 - **Endpoint:** `POST /api/auth/login`
+- **Authentication:** Gerekmez (public endpoint)
 - **Request Body:**
   ```json
   {
@@ -33,10 +35,9 @@
   ```json
   {
     "title": "RAM Analizi Hizmeti",
-    "description": "Volatility3 ile bellek dökümü analizi",
-    "category": "Bellek Adli Bilisimi",
+    "description": "Volatility3 ile bellek dökümü analizi yapılmaktadır.",
     "price": 1500,
-    "location": "İstanbul"
+    "category": "Bellek Adli Bilisimi"
   }
   ```
 - **Response:** `201 Created` - İlan başarıyla yayına alındı
@@ -58,10 +59,9 @@
   ```json
   {
     "title": "Güncellenmiş RAM Analizi Hizmeti",
-    "description": "Volatility3 ile detaylı bellek analizi",
-    "category": "Bellek Adli Bilisimi",
+    "description": "Volatility3 ile detaylı bellek analizi yapılmaktadır.",
     "price": 1800,
-    "location": "İstanbul"
+    "category": "Bellek Adli Bilisimi"
   }
   ```
 - **Response:** `200 OK` - İlan başarıyla güncellendi
@@ -73,19 +73,19 @@
 - **Authentication:** Bearer Token gerekli (sadece ilan sahibi)
 - **Response:** `204 No Content` - İlan başarıyla silindi
 
-## 7. İlan Arama (G9)
+## 7. İlan Arama (G7)
 - **Endpoint:** `GET /api/ads/search`
 - **Query Parameters:**
-  - `query` (string, required) - Aranacak kelime veya ifade (örn: `ram analizi`)
+  - `query` (string, **zorunlu**) - Aranacak kelime veya ifade (örn: `ram analizi`)
   - `page` (integer) - Sayfa numarası (varsayılan: 1)
   - `limit` (integer) - Sayfa başına sonuç sayısı (varsayılan: 10, maks: 50)
 - **Authentication:** Bearer Token gerekli
 - **Response:** `200 OK` - Arama sonuçları başarıyla listelendi
 
-## 8. İlan Filtreleme (G10)
+## 8. İlan Filtreleme (G8)
 - **Endpoint:** `GET /api/ads/filter`
 - **Query Parameters:**
-  - `category` (string, required) - Filtrelenecek kategori:
+  - `category` (string, **zorunlu**) - Filtrelenecek kategori:
     - `Bellek Adli Bilisimi`
     - `Disk Adli Bilisimi`
     - `Mobil Adli Bilisimi`

@@ -1,31 +1,31 @@
-1. **İlan Arama**
-   - **API Metodu:** `GET /api/ads/search`
-   - **Açıklama:** Kullanıcıların kelime bazlı ilan sorgulamasını sağlar.
+1. **Vaka Oluşturma** (G9)
+   - **API Metodu:** `POST /api/cases`
+   - **Açıklama:** Yeni bir adli vaka dosyasının tanımlanmasını sağlar.
 
-2. **İlan Filtreleme**
-   - **API Metodu:** `GET /api/ads/filter`
-   - **Açıklama:** İlanların kategoriye göre ayrıştırılmasını sağlar.
+2. **Vaka Önceliklendirme** (G10)
+   - **API Metodu:** `PATCH /api/cases/{caseId}/priority`
+   - **Açıklama:** Vakanın önem derecesinin belirlenmesini sağlar.
 
-3. **Araç Listeleme**
+3. **Vaka Durum Güncelleme** (G11)
+   - **API Metodu:** `PATCH /api/cases/{caseId}/status`
+   - **Açıklama:** Vakanın "Cozuldu" veya "Acik" olarak işaretlenmesini sağlar.
+
+4. **Not Ekleme** (G12)
+   - **API Metodu:** `POST /api/cases/{caseId}/notes`
+   - **Açıklama:** Vaka dosyasına teknik inceleme notu eklenmesini sağlar.
+
+5. **Araç Listeleme** (G13)
    - **API Metodu:** `GET /api/tools`
    - **Açıklama:** Adli bilişim araçlarının listelenmesini sağlar.
 
-4. **Araç Detay Görüntüleme**
+6. **Araç Detay Görüntüleme** (G14)
    - **API Metodu:** `GET /api/tools/{toolId}`
    - **Açıklama:** Bir aracın teknik bilgilerinin okunmasını sağlar.
 
-5. **Vaka Durum Güncelleme**
-   - **API Metodu:** `PATCH /api/cases/{caseId}/status`
-   - **Açıklama:** Vakanın "Çözüldü" veya "Açık" olarak işaretlenmesini sağlar.
-
-6. **Puan Verme**
+7. **Puan Verme** (G15)
    - **API Metodu:** `POST /api/reviews/rate`
    - **Açıklama:** Uzman hizmetine 1-5 arası puan verilmesini sağlar.
 
-7. **Yorum Yapma**
+8. **Yorum Yapma** (G16)
    - **API Metodu:** `POST /api/reviews/comment`
    - **Açıklama:** Uzman hizmeti altına geri bildirim yazılmasını sağlar.
-
-8. **Not Ekleme**
-   - **API Metodu:** `POST /api/cases/{caseId}/notes`
-   - **Açıklama:** Vaka dosyasına teknik inceleme notu eklenmesini sağlar.

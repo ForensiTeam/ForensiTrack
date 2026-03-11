@@ -4,794 +4,210 @@
 
 Bu doküman, ForensiTrack adli bilişim platformu için OpenAPI Specification (OAS) 3.0 standardına göre hazırlanmış API tasarımını içermektedir.
 
+---
 
-## OpenAPI Specification
+## Genel Bilgiler
+
+| Özellik | Değer |
+|---|---|
+| **API Standardı** | OpenAPI 3.0.3 |
+| **Kimlik Doğrulama** | JWT Bearer Token (HTTP Bearer) |
+| **Base URL (Mock)** | `https://e49102fe-a427-47fc-8c36-ed96f6e4229b.mock.pstmn.io` |
+| **Base URL (Production)** | `https://forensitrack.api.com` |
+| **İçerik Türü** | `application/json` |
+
+---
+
+## Gereksinim — Endpoint Eşleşme Tablosu
+
+| G Kodu | Gereksinim | Metot | Endpoint |
+|---|---|---|---|
+| G1 | Kayıt Olma | `POST` | `/api/auth/register` |
+| G2 | Giriş Yapma | `POST` | `/api/auth/login` |
+| G3 | İlan Ekleme | `POST` | `/api/ads` |
+| G4 | İlan Listeleme | `GET` | `/api/ads` |
+| G5 | İlan Güncelleme | `PUT` | `/api/ads/{adId}` |
+| G6 | İlan Silme | `DELETE` | `/api/ads/{adId}` |
+| G7 | İlan Arama | `GET` | `/api/ads/search` |
+| G8 | İlan Filtreleme | `GET` | `/api/ads/filter` |
+| G9 | Vaka Oluşturma | `POST` | `/api/cases` |
+| G10 | Vaka Önceliklendirme | `PATCH` | `/api/cases/{caseId}/priority` |
+| G11 | Vaka Durum Güncelleme | `PATCH` | `/api/cases/{caseId}/status` |
+| G12 | Not Ekleme | `POST` | `/api/cases/{caseId}/notes` |
+| G13 | Araç Listeleme | `GET` | `/api/tools` |
+| G14 | Araç Detay Görüntüleme | `GET` | `/api/tools/{toolId}` |
+| G15 | Puan Verme | `POST` | `/api/reviews/rate` |
+| G16 | Yorum Yapma | `POST` | `/api/reviews/comment` |
+
+---
+
+## Kimlik Doğrulama
+
+API, **JWT tabanlı HTTP Bearer Token** kimlik doğrulaması kullanmaktadır.
 
 ```yaml
-openapi: 3.0.3
-info:
-  title: E-Ticaret API
-  description: |
-    E-ticaret platformu için RESTful API.
-    
-    ## Özellikler
-    - Kullanıcı yönetimi
-    - Ürün katalog yönetimi
-    - Sipariş işlemleri
-    - JWT tabanlı kimlik doğrulama
-  version: 1.0.0
-  contact:
-    name: API Destek Ekibi
-    email: api-support@yazmuh.com
-    url: https://api.yazmuh.com/support
-  license:
-    name: MIT
-    url: https://opensource.org/licenses/MIT
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+```
 
-servers:
-  - url: https://api.yazmuh.com/v1
-    description: Production server
-  - url: https://staging-api.yazmuh.com/v1
-    description: Staging server
-  - url: http://localhost:3000/v1
-    description: Development server
+**Kullanım:**
+1. `POST /api/auth/login` ile giriş yapılır
+2. Dönen `token` değeri sonraki isteklerde header'a eklenir:
+   ```
+   Authorization: Bearer <token>
+   ```
 
-tags:
-  - name: users
-    description: Kullanıcı yönetimi işlemleri
-  - name: products
-    description: Ürün katalog işlemleri
-  - name: orders
-    description: Sipariş işlemleri
-  - name: auth
-    description: Kimlik doğrulama işlemleri
+**Public endpointler** (token gerektirmez):
+- `POST /api/auth/register`
+- `POST /api/auth/login`
 
-paths:
-  /auth/register:
-    post:
-      tags:
-        - auth
-      summary: Yeni kullanıcı kaydı
-      description: Sisteme yeni bir kullanıcı kaydeder
-      operationId: registerUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserRegistration'
-            examples:
-              example1:
-                summary: Örnek kullanıcı kaydı
-                value:
-                  email: kullanici@example.com
-                  password: Guvenli123!
-                  firstName: Ahmet
-                  lastName: Yılmaz
-      responses:
-        '201':
-          description: Kullanıcı başarıyla oluşturuldu
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '409':
-          description: Email adresi zaten kullanımda
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
+---
 
-  /auth/login:
-    post:
-      tags:
-        - auth
-      summary: Kullanıcı girişi
-      description: Email ve şifre ile giriş yapar, JWT token döner
-      operationId: loginUser
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginCredentials'
-      responses:
-        '200':
-          description: Giriş başarılı
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuthToken'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+## Etiketler (Tags)
 
-  /users:
-    get:
-      tags:
-        - users
-      summary: Kullanıcı listesi
-      description: Sistemdeki tüm kullanıcıları listeler (sayfalama ile)
-      operationId: listUsers
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: role
-          in: query
-          description: Kullanıcı rolüne göre filtrele
-          schema:
-            type: string
-            enum: [admin, user, guest]
-      responses:
-        '200':
-          description: Başarılı
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UserList'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+| Etiket | Kapsanan Gereksinimler | Açıklama |
+|---|---|---|
+| `Auth` | G1, G2 | Kullanıcı kaydı ve kimlik doğrulama |
+| `Ilanlar` | G3, G4, G5, G6, G7, G8 | İlan yönetimi, arama ve filtreleme |
+| `Vakalar` | G9, G10, G11, G12 | Vaka takip ve not yönetimi |
+| `Araclar` | G13, G14 | Adli bilişim araç rehberi |
+| `Degerlendirmeler` | G15, G16 | Puan ve yorum işlemleri |
 
-  /users/{userId}:
-    get:
-      tags:
-        - users
-      summary: Kullanıcı detayı
-      description: Belirli bir kullanıcının detay bilgilerini getirir
-      operationId: getUserById
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/UserIdParam'
-      responses:
-        '200':
-          description: Başarılı
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    
-    put:
-      tags:
-        - users
-      summary: Kullanıcı güncelle
-      description: Kullanıcı bilgilerini günceller
-      operationId: updateUser
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/UserIdParam'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UserUpdate'
-      responses:
-        '200':
-          description: Kullanıcı başarıyla güncellendi
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    
-    delete:
-      tags:
-        - users
-      summary: Kullanıcı sil
-      description: Kullanıcıyı sistemden siler
-      operationId: deleteUser
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/UserIdParam'
-      responses:
-        '204':
-          description: Kullanıcı başarıyla silindi
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
+---
 
-  /products:
-    get:
-      tags:
-        - products
-      summary: Ürün listesi
-      description: Tüm ürünleri listeler
-      operationId: listProducts
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-        - name: category
-          in: query
-          description: Kategoriye göre filtrele
-          schema:
-            type: string
-        - name: minPrice
-          in: query
-          description: Minimum fiyat
-          schema:
-            type: number
-            format: float
-        - name: maxPrice
-          in: query
-          description: Maximum fiyat
-          schema:
-            type: number
-            format: float
-      responses:
-        '200':
-          description: Başarılı
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProductList'
-    
-    post:
-      tags:
-        - products
-      summary: Yeni ürün ekle
-      description: Sisteme yeni bir ürün ekler
-      operationId: createProduct
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProductCreate'
-      responses:
-        '201':
-          description: Ürün başarıyla oluşturuldu
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+## Request Body Şemaları
 
-  /products/{productId}:
-    get:
-      tags:
-        - products
-      summary: Ürün detayı
-      description: Belirli bir ürünün detay bilgilerini getirir
-      operationId: getProductById
-      parameters:
-        - $ref: '#/components/parameters/ProductIdParam'
-      responses:
-        '200':
-          description: Başarılı
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Product'
-        '404':
-          $ref: '#/components/responses/NotFound'
+### Auth Şemaları
 
-  /orders:
-    get:
-      tags:
-        - orders
-      summary: Sipariş listesi
-      description: Kullanıcının siparişlerini listeler
-      operationId: listOrders
-      security:
-        - bearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/LimitParam'
-      responses:
-        '200':
-          description: Başarılı
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/OrderList'
-    
-    post:
-      tags:
-        - orders
-      summary: Yeni sipariş oluştur
-      description: Yeni bir sipariş oluşturur
-      operationId: createOrder
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrderCreate'
-      responses:
-        '201':
-          description: Sipariş başarıyla oluşturuldu
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
+#### UserInput (G1 - Kayıt Olma)
+```json
+{
+  "username": "yigit_bayraktar",
+  "email": "yigit@forensitrack.com",
+  "password": "Forensic!2026",
+  "role": "uzman"
+}
+```
+> **Zorunlu alanlar:** `username`, `email`, `password`
+> **role enum:** `uzman` | `musteri` | `admin`
 
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWT token ile kimlik doğrulama
+#### LoginInput (G2 - Giriş Yapma)
+```json
+{
+  "email": "yigit@forensitrack.com",
+  "password": "Forensic!2026"
+}
+```
+> **Zorunlu alanlar:** `email`, `password`
 
-  parameters:
-    UserIdParam:
-      name: userId
-      in: path
-      required: true
-      description: Kullanıcı ID'si
-      schema:
-        type: string
-        format: uuid
-    
-    ProductIdParam:
-      name: productId
-      in: path
-      required: true
-      description: Ürün ID'si
-      schema:
-        type: string
-        format: uuid
-    
-    PageParam:
-      name: page
-      in: query
-      description: Sayfa numarası
-      schema:
-        type: integer
-        minimum: 1
-        default: 1
-    
-    LimitParam:
-      name: limit
-      in: query
-      description: Sayfa başına kayıt sayısı
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 20
+---
 
-  schemas:
-    User:
-      type: object
-      required:
-        - id
-        - email
-        - firstName
-        - lastName
-        - role
-        - createdAt
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Kullanıcı benzersiz kimliği
-          example: "123e4567-e89b-12d3-a456-426614174000"
-        email:
-          type: string
-          format: email
-          description: Kullanıcı email adresi
-          example: "kullanici@example.com"
-        firstName:
-          type: string
-          description: Ad
-          example: "Ahmet"
-        lastName:
-          type: string
-          description: Soyad
-          example: "Yılmaz"
-        role:
-          type: string
-          enum: [admin, user, guest]
-          description: Kullanıcı rolü
-          example: "user"
-        createdAt:
-          type: string
-          format: date-time
-          description: Oluşturulma tarihi
-          example: "2024-01-15T10:30:00Z"
-        updatedAt:
-          type: string
-          format: date-time
-          description: Güncellenme tarihi
-          example: "2024-01-20T14:45:00Z"
-        phone:
-          type: string
-          description: Telefon numarası
-          example: "+905551234567"
+### İlan Şemaları
 
-    UserRegistration:
-      type: object
-      required:
-        - email
-        - password
-        - firstName
-        - lastName
-      properties:
-        email:
-          type: string
-          format: email
-          example: "kullanici@example.com"
-        password:
-          type: string
-          format: password
-          minLength: 8
-          example: "Guvenli123!"
-        firstName:
-          type: string
-          minLength: 2
-          example: "Ahmet"
-        lastName:
-          type: string
-          minLength: 2
-          example: "Yılmaz"
+#### AdInput (G3 İlan Ekleme / G5 İlan Güncelleme)
+```json
+{
+  "title": "RAM Analizi Hizmeti",
+  "description": "Volatility3 ile bellek dökümü analizi yapılmaktadır.",
+  "price": 1500,
+  "category": "Bellek Adli Bilisimi"
+}
+```
+> **Zorunlu alanlar:** `title`, `description`, `price`, `category`
+> **category enum:** `Bellek Adli Bilisimi` | `Disk Adli Bilisimi` | `Mobil Adli Bilisimi` | `Ag Adli Bilisimi` | `Bulut Adli Bilisimi`
 
-    UserUpdate:
-      type: object
-      properties:
-        firstName:
-          type: string
-          minLength: 2
-          example: "Ahmet"
-        lastName:
-          type: string
-          minLength: 2
-          example: "Yılmaz"
-        email:
-          type: string
-          format: email
-          example: "yeniemail@example.com"
-        phone:
-          type: string
-          description: Telefon numarası
-          example: "+905551234567"
+#### İlan Arama Parametreleri (G7)
+| Parametre | Tür | Zorunlu | Açıklama |
+|---|---|---|---|
+| `query` | string | **Evet** | Aranacak kelime/ifade |
+| `page` | integer | Hayır | Sayfa numarası (varsayılan: 1) |
+| `limit` | integer | Hayır | Sayfa başına sonuç (varsayılan: 10, maks: 50) |
 
-    LoginCredentials:
-      type: object
-      required:
-        - email
-        - password
-      properties:
-        email:
-          type: string
-          format: email
-          example: "kullanici@example.com"
-        password:
-          type: string
-          format: password
-          example: "Guvenli123!"
+#### İlan Filtreleme Parametreleri (G8)
+| Parametre | Tür | Zorunlu | Açıklama |
+|---|---|---|---|
+| `category` | string (enum) | **Evet** | Filtrelenecek kategori |
+| `page` | integer | Hayır | Sayfa numarası (varsayılan: 1) |
+| `limit` | integer | Hayır | Sayfa başına sonuç (varsayılan: 10, maks: 50) |
 
-    AuthToken:
-      type: object
-      required:
-        - token
-        - expiresIn
-        - user
-      properties:
-        token:
-          type: string
-          description: JWT access token
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-        expiresIn:
-          type: integer
-          description: Token geçerlilik süresi (saniye)
-          example: 3600
-        user:
-          $ref: '#/components/schemas/User'
+---
 
-    Product:
-      type: object
-      required:
-        - id
-        - name
-        - price
-        - category
-        - stock
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: "987e6543-e21b-12d3-a456-426614174000"
-        name:
-          type: string
-          description: Ürün adı
-          example: "Laptop"
-        description:
-          type: string
-          description: Ürün açıklaması
-          example: "15.6 inç, 16GB RAM, 512GB SSD"
-        price:
-          type: number
-          format: float
-          description: Ürün fiyatı (TL)
-          example: 25999.99
-        category:
-          type: string
-          description: Ürün kategorisi
-          example: "Elektronik"
-        stock:
-          type: integer
-          description: Stok miktarı
-          example: 50
-        imageUrl:
-          type: string
-          format: uri
-          description: Ürün görseli URL'i
-          example: "https://example.com/images/laptop.jpg"
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+### Vaka Şemaları
 
-    ProductCreate:
-      type: object
-      required:
-        - name
-        - price
-        - category
-        - stock
-      properties:
-        name:
-          type: string
-          minLength: 3
-        description:
-          type: string
-        price:
-          type: number
-          format: float
-          minimum: 0
-        category:
-          type: string
-        stock:
-          type: integer
-          minimum: 0
-        imageUrl:
-          type: string
-          format: uri
+#### CaseInput (G9 - Vaka Oluşturma)
+```json
+{
+  "title": "Şirket Sunucusu İhlali",
+  "description": "Sunucuya yetkisiz erişim şüphesiyle açılan vaka.",
+  "priority": "Yuksek",
+  "assignedExpert": "FT-99"
+}
+```
+> **Zorunlu alanlar:** `title`, `description`, `priority`
+> **priority enum:** `Kritik` | `Yuksek` | `Orta` | `Dusuk`
 
-    Order:
-      type: object
-      required:
-        - id
-        - userId
-        - items
-        - totalAmount
-        - status
-        - createdAt
-      properties:
-        id:
-          type: string
-          format: uuid
-        userId:
-          type: string
-          format: uuid
-        items:
-          type: array
-          items:
-            $ref: '#/components/schemas/OrderItem'
-        totalAmount:
-          type: number
-          format: float
-          description: Toplam tutar (TL)
-        status:
-          type: string
-          enum: [pending, processing, shipped, delivered, cancelled]
-          description: Sipariş durumu
-        shippingAddress:
-          $ref: '#/components/schemas/Address'
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+#### PriorityUpdate (G10 - Vaka Önceliklendirme)
+```json
+{
+  "priority": "Kritik"
+}
+```
+> **Zorunlu alanlar:** `priority`
 
-    OrderCreate:
-      type: object
-      required:
-        - items
-        - shippingAddress
-      properties:
-        items:
-          type: array
-          minItems: 1
-          items:
-            type: object
-            required:
-              - productId
-              - quantity
-            properties:
-              productId:
-                type: string
-                format: uuid
-              quantity:
-                type: integer
-                minimum: 1
-        shippingAddress:
-          $ref: '#/components/schemas/Address'
+#### StatusUpdate (G11 - Vaka Durum Güncelleme)
+```json
+{
+  "status": "Cozuldu"
+}
+```
+> **Zorunlu alanlar:** `status`
+> **status enum:** `Acik` | `Cozuldu` | `Incelemede`
 
-    OrderItem:
-      type: object
-      properties:
-        productId:
-          type: string
-          format: uuid
-        productName:
-          type: string
-        quantity:
-          type: integer
-        unitPrice:
-          type: number
-          format: float
-        totalPrice:
-          type: number
-          format: float
+#### CaseNoteInput (G12 - Not Ekleme)
+```json
+{
+  "note": "Volatility3 ile yapılan bellek analizi tamamlandı. Şüpheli process tespit edildi."
+}
+```
+> **Zorunlu alanlar:** `note`
 
-    Address:
-      type: object
-      required:
-        - street
-        - city
-        - postalCode
-        - country
-      properties:
-        street:
-          type: string
-          example: "Atatürk Caddesi No:123"
-        city:
-          type: string
-          example: "İstanbul"
-        postalCode:
-          type: string
-          example: "34000"
-        country:
-          type: string
-          example: "Türkiye"
+---
 
-    UserList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/User'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
+### Değerlendirme Şemaları
 
-    ProductList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Product'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
+#### RateInput (G15 - Puan Verme)
+```json
+{
+  "adId": "ad_501",
+  "rating": 5
+}
+```
+> **Zorunlu alanlar:** `adId`, `rating`
+> **rating:** 1-5 arası tam sayı
 
-    OrderList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Order'
-        pagination:
-          $ref: '#/components/schemas/Pagination'
+#### CommentInput (G16 - Yorum Yapma)
+```json
+{
+  "adId": "ad_501",
+  "comment": "Analiz raporu son derece detaylı ve profesyoneldi. Kesinlikle tavsiye ederim."
+}
+```
+> **Zorunlu alanlar:** `adId`, `comment`
 
-    Pagination:
-      type: object
-      properties:
-        page:
-          type: integer
-          description: Mevcut sayfa
-          example: 1
-        limit:
-          type: integer
-          description: Sayfa başına kayıt
-          example: 20
-        totalPages:
-          type: integer
-          description: Toplam sayfa sayısı
-          example: 5
-        totalItems:
-          type: integer
-          description: Toplam kayıt sayısı
-          example: 95
+---
 
-    Error:
-      type: object
-      required:
-        - code
-        - message
-      properties:
-        code:
-          type: string
-          description: Hata kodu
-          example: "VALIDATION_ERROR"
-        message:
-          type: string
-          description: Hata mesajı
-          example: "Geçersiz email adresi"
-        details:
-          type: array
-          description: Detaylı hata bilgileri
-          items:
-            type: object
-            properties:
-              field:
-                type: string
-                example: "email"
-              message:
-                type: string
-                example: "Email formatı geçersiz"
+## HTTP Durum Kodları
 
-  responses:
-    BadRequest:
-      description: Geçersiz istek
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: "BAD_REQUEST"
-            message: "İstek parametreleri geçersiz"
-    
-    Unauthorized:
-      description: Yetkisiz erişim
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: "UNAUTHORIZED"
-            message: "Kimlik doğrulama başarısız"
-    
-    NotFound:
-      description: Kaynak bulunamadı
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: "NOT_FOUND"
-            message: "İstenen kaynak bulunamadı"
-    
-    Forbidden:
-      description: Erişim reddedildi
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
-          example:
-            code: "FORBIDDEN"
-            message: "Bu işlem için yetkiniz bulunmamaktadır"
-``
+| Kod | Açıklama | Kullanılan Durumlar |
+|---|---|---|
+| `200 OK` | İstek başarılı | GET, PUT, PATCH |
+| `201 Created` | Kayıt oluşturuldu | POST (kayıt, ilan, vaka, not, puan, yorum) |
+| `204 No Content` | Silme başarılı | DELETE |
+| `400 Bad Request` | Geçersiz istek verisi | Eksik/hatalı parametre |
+| `401 Unauthorized` | Token eksik/geçersiz | Protected endpoint erişimi |
+| `403 Forbidden` | Yetki yok | Başkasının kaydını değiştirme |
+| `404 Not Found` | Kaynak bulunamadı | Geçersiz ID |
+| `409 Conflict` | Çakışma | Kayıtlı e-posta ile tekrar kayıt |
