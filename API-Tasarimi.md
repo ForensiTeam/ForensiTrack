@@ -12,7 +12,7 @@ Bu doküman, ForensiTrack adli bilişim platformu için OpenAPI Specification (O
 |---|---|
 | **API Standardı** | OpenAPI 3.0.3 |
 | **Kimlik Doğrulama** | JWT Bearer Token (HTTP Bearer) |
-| **Base URL (Mock)** | `https://e49102fe-a427-47fc-8c36-ed96f6e4229b.mock.pstmn.io` |
+| **Base URL (Mock)** | `https://fd7cec20-77d6-4826-a8d6-7721d6b08b60.mock.pstmn.io` |
 | **Base URL (Production)** | `https://forensitrack.api.com` |
 | **İçerik Türü** | `application/json` |
 

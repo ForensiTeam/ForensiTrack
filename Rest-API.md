@@ -1,6 +1,6 @@
 # REST API Görev Dağılımı
 
-**REST API Adresi:** [e49102fe-a427-47fc-8c36-ed96f6e4229b.mock.pstmn.io](https://e49102fe-a427-47fc-8c36-ed96f6e4229b.mock.pstmn.io)
+**REST API Adresi:** [fd7cec20-77d6-4826-a8d6-7721d6b08b60.mock.pstmn.io](https://fd7cec20-77d6-4826-a8d6-7721d6b08b60.mock.pstmn.io)
 
 Bu dokümanda, proje ekibindeki her üyenin geliştirmekten sorumlu olduğu REST API metotları listelenmektedir.
 
