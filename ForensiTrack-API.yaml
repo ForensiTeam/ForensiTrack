@@ -14,7 +14,7 @@ info:
     email: yigit@forensitrack.com
 
 servers:
-  - url: https://c6e49a4e-a7b5-43bc-ac6a-89be10f9cdbf.mock.pstmn.io
+  - url: https://fd7cec20-77d6-4826-a8d6-7721d6b08b60.mock.pstmn.io
     description: Postman Mock Sunucusu (Aktif)
   - url: https://forensitrack.api.com
     description: Üretim sunucusu (Production)
@@ -65,6 +65,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RegisterResponse'
+              example:
+                message: "Kayit basarili"
+                userId: "FT-99"
         "400":
           description: Geçersiz istek verisi (eksik veya hatalı alan)
           content:
@@ -102,6 +105,9 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
+              example:
+                token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJGVC05OSIsInJvbGUiOiJ1emthbiJ9.abc123"
+                expiresIn: 86400
         "400":
           description: Geçersiz istek verisi
           content:
@@ -151,6 +157,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ad'
+              example:
+                - _id: "ad_501"
+                  title: "RAM Analizi Hizmeti"
+                  description: "Volatility3 ile bellek dökümü analizi yapılmaktadır."
+                  price: 1500
+                  category: "Bellek Adli Bilisimi"
+                  averageRating: 4.7
+                  owner: "FT-99"
+                  createdAt: "2026-03-09T10:00:00Z"
+                - _id: "ad_502"
+                  title: "Mobil Cihaz Adli Analizi"
+                  description: "Android ve iOS cihazlar için kapsamlı adli analiz."
+                  price: 4500
+                  category: "Mobil Adli Bilisimi"
+                  averageRating: 4.5
+                  owner: "FT-77"
+                  createdAt: "2026-03-09T11:00:00Z"
         "401":
           description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
           content:
@@ -182,6 +205,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ad'
+              example:
+                _id: "ad_503"
+                title: "RAM Analizi Hizmeti"
+                description: "Volatility3 ile bellek dökümü analizi yapılmaktadır."
+                price: 1500
+                category: "Bellek Adli Bilisimi"
+                averageRating: 0
+                owner: "FT-99"
+                createdAt: "2026-03-11T19:00:00Z"
         "400":
           description: Geçersiz istek verisi
           content:
@@ -245,6 +277,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ad'
+              example:
+                - _id: "ad_501"
+                  title: "RAM Analizi Hizmeti"
+                  description: "Volatility3 ile bellek dökümü analizi yapılmaktadır."
+                  price: 1500
+                  category: "Bellek Adli Bilisimi"
+                  averageRating: 4.7
+                  owner: "FT-99"
+                  createdAt: "2026-03-09T10:00:00Z"
         "400":
           description: Geçersiz arama parametresi
           content:
@@ -307,6 +348,15 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Ad'
+              example:
+                - _id: "ad_502"
+                  title: "Disk İmaj Kurtarma Hizmeti"
+                  description: "Sabit disklerden silinen verilerin geri kazanımı."
+                  price: 2000
+                  category: "Disk Adli Bilisimi"
+                  averageRating: 4.8
+                  owner: "FT-88"
+                  createdAt: "2026-03-09T09:00:00Z"
         "400":
           description: Geçersiz filtre parametresi
           content:
@@ -354,6 +404,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ad'
+              example:
+                _id: "ad_501"
+                title: "Güncellenmiş RAM Analizi Hizmeti"
+                description: "Volatility3 ile detaylı bellek analizi yapılmaktadır."
+                price: 1800
+                category: "Bellek Adli Bilisimi"
+                averageRating: 4.7
+                owner: "FT-99"
+                createdAt: "2026-03-09T10:00:00Z"
         "400":
           description: Geçersiz istek verisi
           content:
@@ -432,6 +491,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Case'
+              example:
+                _id: "FT-2026-001"
+                title: "Şirket Sunucusu İhlali"
+                description: "Sunucuya yetkisiz erişim şüphesiyle açılan vaka."
+                priority: "Yuksek"
+                status: "Acik"
+                assignedExpert: "FT-99"
+                createdAt: "2026-03-11T19:00:00Z"
+                updatedAt: "2026-03-11T19:00:00Z"
         "400":
           description: Geçersiz istek verisi
           content:
@@ -482,6 +550,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Case'
+              example:
+                _id: "FT-2026-001"
+                title: "Şirket Sunucusu İhlali"
+                description: "Sunucuya yetkisiz erişim şüphesiyle açılan vaka."
+                priority: "Kritik"
+                status: "Incelemede"
+                assignedExpert: "FT-99"
+                createdAt: "2026-03-11T19:00:00Z"
+                updatedAt: "2026-03-11T20:00:00Z"
         "400":
           description: Geçersiz istek verisi
           content:
@@ -538,6 +615,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Case'
+              example:
+                _id: "FT-2026-001"
+                title: "Şirket Sunucusu İhlali"
+                description: "Sunucuya yetkisiz erişim şüphesiyle açılan vaka."
+                priority: "Kritik"
+                status: "Cozuldu"
+                assignedExpert: "FT-99"
+                createdAt: "2026-03-11T19:00:00Z"
+                updatedAt: "2026-03-11T21:00:00Z"
         "400":
           description: Geçersiz istek verisi
           content:
@@ -594,6 +680,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CaseNote'
+              example:
+                _id: "note_42"
+                author: "FT-99"
+                note: "Volatility3 ile yapılan bellek analizi tamamlandı. Şüpheli process tespit edildi."
+                createdAt: "2026-03-11T20:00:00Z"
         "400":
           description: Geçersiz istek verisi
           content:
@@ -662,6 +753,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Tool'
+              example:
+                - _id: "tool_volatility3"
+                  name: "Volatility 3"
+                  version: "2.6.1"
+                  category: "Bellek Analizi"
+                  description: "RAM dökümlerinden artefakt çıkarma ve analiz için kullanılır."
+                  supportedOS: ["Windows", "Linux", "macOS"]
+                  licenseType: "Acik Kaynak"
+                  officialUrl: "https://github.com/volatilityfoundation/volatility3"
+                - _id: "tool_autopsy"
+                  name: "Autopsy"
+                  version: "4.21.0"
+                  category: "Disk Analizi"
+                  description: "Dijital adli bilişim platformu, disk ve dosya analizi."
+                  supportedOS: ["Windows", "Linux"]
+                  licenseType: "Ucretsiz"
+                  officialUrl: "https://www.autopsy.com"
         "401":
           description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
           content:
@@ -692,6 +800,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tool'
+              example:
+                _id: "tool_volatility3"
+                name: "Volatility 3"
+                version: "2.6.1"
+                category: "Bellek Analizi"
+                description: "RAM dökümlerinden artefakt çıkarma ve analiz için kullanılır."
+                supportedOS: ["Windows", "Linux", "macOS"]
+                licenseType: "Acik Kaynak"
+                officialUrl: "https://github.com/volatilityfoundation/volatility3"
         "401":
           description: Kimlik doğrulama başarısız (token eksik veya geçersiz)
           content:
@@ -728,6 +845,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
+              example:
+                _id: "rev_88"
+                adId: "ad_501"
+                author: "FT-77"
+                rating: 5
+                createdAt: "2026-03-11T20:00:00Z"
         "400":
           description: Geçersiz istek verisi
           content:
@@ -770,6 +893,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
+              example:
+                _id: "rev_89"
+                adId: "ad_501"
+                author: "FT-77"
+                rating: 5
+                comment: "Analiz raporu son derece detaylı ve profesyoneldi. Kesinlikle tavsiye ederim."
+                createdAt: "2026-03-11T20:30:00Z"
         "400":
           description: Geçersiz istek verisi
           content:
