@@ -1,58 +1,60 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import API_BASE from '../api';
 
 const Register = () => {
-  const [formData, setFormData] = useState({ username: '', email: '', password: '', role: 'uzman' });
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setError(''); setSuccess('');
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(form)
       });
-      const data = await response.json();
-      if (response.ok) {
-        alert('Kayıt başarılı, lütfen giriş yapın');
-        window.location.href = '/login';
+      const data = await res.json();
+      if (res.ok) {
+        setSuccess('Hesap basariyla olusturuldu! Giris sayfasina yonlendiriliyorsunuz...');
+        setTimeout(() => navigate('/login'), 1500);
       } else {
-        alert(data.message);
+        setError(data.message || 'Kayit basarisiz');
       }
-    } catch (error) {
-      console.error(error);
-      alert('Kayıt başarısız');
+    } catch (err) {
+      setError('Sunucuya baglanilamadi');
     }
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Kayıt Ol</h2>
-      <form onSubmit={handleRegister}>
-        <div>
-          <label>Username: </label>
-          <input type="text" name="username" value={formData.username} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Email: </label>
-          <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Password: </label>
-          <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Role: </label>
-          <select name="role" value={formData.role} onChange={handleChange}>
-            <option value="uzman">Uzman</option>
-            <option value="musteri">Müşteri</option>
-          </select>
-        </div>
-        <button type="submit">Kayıt Ol</button>
-      </form>
+    <div className="auth-container">
+      <div className="glass-panel auth-card">
+        <h2>Kayit Ol</h2>
+        <p>ForensiTrack platformuna katilarak hizmet verin</p>
+        {error && <div className="alert alert-error">{error}</div>}
+        {success && <div className="alert alert-success">{success}</div>}
+        <form onSubmit={handleRegister}>
+          <div className="input-group">
+            <label className="input-label">Kullanici Adi</label>
+            <input className="input-field" type="text" placeholder="uzman_adi" value={form.username} onChange={e => setForm({...form, username: e.target.value})} required />
+          </div>
+          <div className="input-group">
+            <label className="input-label">E-posta</label>
+            <input className="input-field" type="email" placeholder="ornek@forensitrack.com" value={form.email} onChange={e => setForm({...form, email: e.target.value})} required />
+          </div>
+          <div className="input-group">
+            <label className="input-label">Sifre</label>
+            <input className="input-field" type="password" placeholder="••••••••" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
+          </div>
+          <button className="btn-primary" type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>Kayit Ol (G1)</button>
+        </form>
+        <p style={{ marginTop: '1.5rem', textAlign: 'center', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+          Zaten hesabiniz var mi? <Link to="/login" className="link">Giris Yap</Link>
+        </p>
+      </div>
     </div>
   );
 };

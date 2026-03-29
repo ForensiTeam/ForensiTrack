@@ -1,11 +1,11 @@
 const Case = require('../models/Case');
 
-// G9: Vaka Oluşturma
+// G9: Vaka Olusturma
 exports.createCase = async (req, res) => {
   try {
-    const { title, description, priority, assignedExpert } = req.body;
+    const { title, description, priority } = req.body;
     const newCase = new Case({
-      title, description, priority, assignedExpert, userId: req.user.userId
+      title, description, priority, userId: req.user.userId
     });
     await newCase.save();
     res.status(201).json(newCase);
@@ -14,26 +14,26 @@ exports.createCase = async (req, res) => {
   }
 };
 
-// G10: Vaka Önceliklendirme
+// G10: Vaka Onceliklendirme
 exports.updatePriority = async (req, res) => {
   try {
     const { caseId } = req.params;
     const { priority } = req.body;
     const updatedCase = await Case.findByIdAndUpdate(caseId, { priority }, { new: true });
-    if (!updatedCase) return res.status(404).json({ message: 'Vaka bulunamadı' });
+    if (!updatedCase) return res.status(404).json({ message: 'Vaka bulunamadi' });
     res.status(200).json(updatedCase);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
 
-// G11: Vaka Durum Güncelleme
+// G11: Vaka Durum Guncelleme
 exports.updateStatus = async (req, res) => {
   try {
     const { caseId } = req.params;
     const { status } = req.body;
     const updatedCase = await Case.findByIdAndUpdate(caseId, { status }, { new: true });
-    if (!updatedCase) return res.status(404).json({ message: 'Vaka bulunamadı' });
+    if (!updatedCase) return res.status(404).json({ message: 'Vaka bulunamadi' });
     res.status(200).json(updatedCase);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -44,11 +44,13 @@ exports.updateStatus = async (req, res) => {
 exports.addNote = async (req, res) => {
   try {
     const { caseId } = req.params;
-    const { note } = req.body;
-    const caseDoc = await Case.findById(caseId);
-    if (!caseDoc) return res.status(404).json({ message: 'Vaka bulunamadı' });
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ message: 'Not icerigi bos olamaz.' });
     
-    caseDoc.notes.push({ note });
+    const caseDoc = await Case.findById(caseId);
+    if (!caseDoc) return res.status(404).json({ message: 'Vaka bulunamadi' });
+    
+    caseDoc.notes.push({ userId: req.user.userId, content });
     await caseDoc.save();
     res.status(201).json(caseDoc);
   } catch (err) {

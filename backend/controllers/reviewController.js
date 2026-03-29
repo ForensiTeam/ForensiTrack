@@ -1,32 +1,50 @@
 const Review = require('../models/Review');
+const Tool = require('../models/Tool');
 
-// G15: Puan Verme
-exports.rateAd = async (req, res) => {
+// G15: Puan Verme (POST /api/reviews/rate)
+exports.rateTool = async (req, res) => {
   try {
-    const { adId, rating } = req.body;
-    if (rating < 1 || rating > 5) {
-      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    const { toolId, rating } = req.body;
+    if (!toolId || !rating) return res.status(400).json({ message: 'toolId ve rating zorunludur.' });
+
+    let review = await Review.findOne({ toolId, userId: req.user.userId });
+    if (review) {
+      review.rating = rating;
+      await review.save();
+    } else {
+      review = new Review({ toolId, userId: req.user.userId, rating });
+      await review.save();
     }
-    const review = new Review({ adId, rating, userId: req.user.userId });
-    await review.save();
-    res.status(201).json(review);
+
+    // Aracin Ortalama Puanini Guncelle
+    const allReviews = await Review.find({ toolId, rating: { $exists: true, $ne: null } });
+    if (allReviews.length > 0) {
+      const average = allReviews.reduce((acc, curr) => acc + curr.rating, 0) / allReviews.length;
+      await Tool.findByIdAndUpdate(toolId, { overallRating: average });
+    }
+
+    res.status(200).json(review);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 };
 
-// G16: Yorum Yapma
-exports.commentAd = async (req, res) => {
+// G16: Yorum Yapma (POST /api/reviews/comment)
+exports.commentTool = async (req, res) => {
   try {
-    const { adId, comment } = req.body;
-    if (!comment) {
-      return res.status(400).json({ message: 'Comment text is required' });
+    const { toolId, comment } = req.body;
+    if (!toolId || !comment) return res.status(400).json({ message: 'toolId ve comment zorunludur.' });
+
+    let review = await Review.findOne({ toolId, userId: req.user.userId });
+    if (review) {
+      review.comment = comment;
+      await review.save();
+    } else {
+      review = new Review({ toolId, userId: req.user.userId, comment });
+      await review.save();
     }
-    // Eger bu user evelden yorum yaptiysa veya o an rate verildiyse ayni review icine alalim
-    // Kolaylik olsun diye yeni bir review kaydediyoruz
-    const review = new Review({ adId, comment, userId: req.user.userId });
-    await review.save();
-    res.status(201).json(review);
+    
+    res.status(200).json(review);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
