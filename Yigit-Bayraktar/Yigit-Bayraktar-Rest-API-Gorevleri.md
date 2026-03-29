@@ -4,94 +4,84 @@
 
 ## 1. Kayıt Olma (G1)
 - **Endpoint:** `POST /api/auth/register`
-- **Authentication:** Gerekmez (public endpoint)
-- **Request Body:**
+- **Request Body:** 
   ```json
   {
-    "username": "yigit_bayraktar",
+    "username": "uzman_yigit",
     "email": "yigit@forensitrack.com",
-    "password": "Forensic!2026",
-    "role": "uzman"
+    "password": "GuvenliSifre123!"
   }
   ```
 - **Response:** `201 Created` - Kullanıcı başarıyla oluşturuldu
 
 ## 2. Giriş Yapma (G2)
 - **Endpoint:** `POST /api/auth/login`
-- **Authentication:** Gerekmez (public endpoint)
-- **Request Body:**
+- **Request Body:** 
   ```json
   {
     "email": "yigit@forensitrack.com",
-    "password": "Forensic!2026"
+    "password": "GuvenliSifre123!"
   }
   ```
-- **Response:** `200 OK` - Giriş başarılı, JWT token döndürüldü
+- **Response:** `200 OK` - JWT Token döndürülür
+  ```json
+  {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+  ```
 
 ## 3. İlan Ekleme (G3)
 - **Endpoint:** `POST /api/ads`
-- **Authentication:** Bearer Token gerekli
-- **Request Body:**
+- **Request Body:** 
   ```json
   {
-    "title": "RAM Analizi Hizmeti",
+    "title": "RAM Analizi ve Zararlı Yazılım Tespiti",
     "description": "Volatility3 ile bellek dökümü analizi yapılmaktadır.",
-    "price": 1500,
+    "price": 2500,
     "category": "Bellek Adli Bilisimi"
   }
   ```
-- **Response:** `201 Created` - İlan başarıyla yayına alındı
+- **Authentication:** Bearer Token gerekli
+- **Response:** `201 Created` - İlan başarıyla oluşturuldu
 
 ## 4. İlan Listeleme (G4)
 - **Endpoint:** `GET /api/ads`
-- **Query Parameters:**
-  - `page` (integer) - Sayfa numarası (varsayılan: 1)
-  - `limit` (integer) - Sayfa başına ilan sayısı (varsayılan: 10, maks: 50)
 - **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - İlan listesi başarıyla getirildi
+- **Response:** `200 OK` - Tüm ilanlar listelenir
 
 ## 5. İlan Güncelleme (G5)
 - **Endpoint:** `PUT /api/ads/{adId}`
-- **Path Parameters:**
-  - `adId` (string, required) - İlanın benzersiz kimlik numarası (örn: `ad_501`)
-- **Authentication:** Bearer Token gerekli (sadece ilan sahibi)
-- **Request Body:**
+- **Path Parameters:** 
+  - `adId` (string, required) - İlan ID'si
+- **Request Body:** 
   ```json
   {
-    "title": "Güncellenmiş RAM Analizi Hizmeti",
-    "description": "Volatility3 ile detaylı bellek analizi yapılmaktadır.",
-    "price": 1800,
-    "category": "Bellek Adli Bilisimi"
+    "title": "Güncellenmiş İlan Başlığı",
+    "description": "Güncellenmiş açıklama",
+    "price": 3000,
+    "category": "Disk Adli Bilisimi"
   }
   ```
+- **Authentication:** Bearer Token gerekli (Sadece ilan sahibi güncelleyebilir)
 - **Response:** `200 OK` - İlan başarıyla güncellendi
 
 ## 6. İlan Silme (G6)
 - **Endpoint:** `DELETE /api/ads/{adId}`
-- **Path Parameters:**
-  - `adId` (string, required) - İlanın benzersiz kimlik numarası (örn: `ad_501`)
-- **Authentication:** Bearer Token gerekli (sadece ilan sahibi)
-- **Response:** `204 No Content` - İlan başarıyla silindi
+- **Path Parameters:** 
+  - `adId` (string, required) - İlan ID'si
+- **Authentication:** Bearer Token gerekli (Sadece ilan sahibi silebilir)
+- **Response:** `200 OK` - İlan başarıyla silindi
 
 ## 7. İlan Arama (G7)
-- **Endpoint:** `GET /api/ads/search`
-- **Query Parameters:**
-  - `query` (string, **zorunlu**) - Aranacak kelime veya ifade (örn: `ram analizi`)
-  - `page` (integer) - Sayfa numarası (varsayılan: 1)
-  - `limit` (integer) - Sayfa başına sonuç sayısı (varsayılan: 10, maks: 50)
+- **Endpoint:** `GET /api/ads/search?query={keyword}`
+- **Query Parameters:** 
+  - `query` (string, required) - Arama kelimesi
 - **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - Arama sonuçları başarıyla listelendi
+- **Response:** `200 OK` - Eşleşen ilanlar listelenir
 
 ## 8. İlan Filtreleme (G8)
-- **Endpoint:** `GET /api/ads/filter`
-- **Query Parameters:**
-  - `category` (string, **zorunlu**) - Filtrelenecek kategori:
-    - `Bellek Adli Bilisimi`
-    - `Disk Adli Bilisimi`
-    - `Mobil Adli Bilisimi`
-    - `Ag Adli Bilisimi`
-    - `Bulut Adli Bilisimi`
-  - `page` (integer) - Sayfa numarası (varsayılan: 1)
-  - `limit` (integer) - Sayfa başına sonuç sayısı (varsayılan: 10, maks: 50)
+- **Endpoint:** `GET /api/ads/filter?category={category}`
+- **Query Parameters:** 
+  - `category` (string, required) - Kategori adı
 - **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - Filtrelenmiş ilanlar başarıyla listelendi
+- **Response:** `200 OK` - Filtrelenen ilanlar listelenir
