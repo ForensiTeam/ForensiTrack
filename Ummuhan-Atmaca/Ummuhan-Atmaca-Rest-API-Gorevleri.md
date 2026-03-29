@@ -4,98 +4,88 @@
 
 ## 1. Vaka Oluşturma (G9)
 - **Endpoint:** `POST /api/cases`
-- **Authentication:** Bearer Token gerekli
-- **Request Body:**
+- **Request Body:** 
   ```json
   {
-    "title": "Şirket Sunucusu İhlali",
-    "description": "Sunucuya yetkisiz erişim şüphesiyle açılan vaka.",
-    "priority": "Yuksek",
-    "assignedExpert": "FT-99"
+    "title": "Şüpheli Disk İmajı İncelemesi",
+    "description": "Ele geçirilen hard diskin adli analizi",
+    "priority": "Yuksek"
   }
   ```
-- **Response:** `201 Created` - Vaka başarıyla oluşturuldu ve takip numarası atandı
+- **Authentication:** Bearer Token gerekli
+- **Response:** `201 Created` - Vaka başarıyla oluşturuldu
 
 ## 2. Vaka Önceliklendirme (G10)
 - **Endpoint:** `PATCH /api/cases/{caseId}/priority`
-- **Path Parameters:**
-  - `caseId` (string, required) - Vakanın benzersiz kimlik numarası (örn: `FT-2026-001`)
-- **Authentication:** Bearer Token gerekli
-- **Request Body:**
+- **Path Parameters:** 
+  - `caseId` (string, required) - Vaka ID'si
+- **Request Body:** 
   ```json
   {
     "priority": "Kritik"
   }
   ```
-- **Response:** `200 OK` - Öncelik seviyesi başarıyla güncellendi
+- **Authentication:** Bearer Token gerekli
+- **Response:** `200 OK` - Öncelik başarıyla güncellendi
 
 ## 3. Vaka Durum Güncelleme (G11)
 - **Endpoint:** `PATCH /api/cases/{caseId}/status`
-- **Path Parameters:**
-  - `caseId` (string, required) - Vakanın benzersiz kimlik numarası (örn: `FT-2026-001`)
-- **Authentication:** Bearer Token gerekli
-- **Request Body:**
+- **Path Parameters:** 
+  - `caseId` (string, required) - Vaka ID'si
+- **Request Body:** 
   ```json
   {
     "status": "Cozuldu"
   }
   ```
-- **Response:** `200 OK` - Vaka durumu başarıyla güncellendi
+- **Authentication:** Bearer Token gerekli
+- **Response:** `200 OK` - Durum başarıyla güncellendi
 
 ## 4. Not Ekleme (G12)
 - **Endpoint:** `POST /api/cases/{caseId}/notes`
-- **Path Parameters:**
-  - `caseId` (string, required) - Notun ekleneceği vakanın kimlik numarası (örn: `FT-2026-001`)
-- **Authentication:** Bearer Token gerekli
-- **Request Body:**
+- **Path Parameters:** 
+  - `caseId` (string, required) - Vaka ID'si
+- **Request Body:** 
   ```json
   {
-    "note": "Volatility3 ile yapılan bellek analizi tamamlandı. Şüpheli process tespit edildi."
+    "content": "Disk imajı üzerinde silinen dosyalar FTK ile kurtarıldı."
   }
   ```
-- **Response:** `201 Created` - Teknik not vaka geçmişine başarıyla eklendi
+- **Authentication:** Bearer Token gerekli
+- **Response:** `201 Created` - Not başarıyla eklendi
 
 ## 5. Araç Listeleme (G13)
 - **Endpoint:** `GET /api/tools`
-- **Query Parameters:**
-  - `category` (string) - Araçları kategoriye göre filtreler:
-    - `Bellek Analizi`
-    - `Disk Analizi`
-    - `Ag Analizi`
-    - `Mobil Analiz`
-    - `Sifreleme`
-  - `page` (integer) - Sayfa numarası (varsayılan: 1)
-  - `limit` (integer) - Sayfa başına araç sayısı (varsayılan: 10, maks: 50)
 - **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - Araç listesi başarıyla getirildi
+- **Response:** `200 OK` - Tüm adli bilişim araçları listelenir
 
 ## 6. Araç Detay Görüntüleme (G14)
 - **Endpoint:** `GET /api/tools/{toolId}`
-- **Path Parameters:**
-  - `toolId` (string, required) - Aracın benzersiz kimlik numarası (örn: `tool_volatility3`)
+- **Path Parameters:** 
+  - `toolId` (string, required) - Araç ID'si
 - **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - Araç detayları başarıyla getirildi
+- **Response:** `200 OK` - Araç detayları ve kullanıcı değerlendirmeleri döndürülür
 
 ## 7. Puan Verme (G15)
 - **Endpoint:** `POST /api/reviews/rate`
-- **Authentication:** Bearer Token gerekli
-- **Request Body:**
+- **Request Body:** 
   ```json
   {
-    "adId": "ad_501",
+    "toolId": "665abc123def456ghi789",
     "rating": 5
   }
   ```
-- **Response:** `201 Created` - Puan başarıyla kaydedildi
+- **Authentication:** Bearer Token gerekli
+- **Response:** `200 OK` - Puan başarıyla kaydedildi
 
 ## 8. Yorum Yapma (G16)
 - **Endpoint:** `POST /api/reviews/comment`
-- **Authentication:** Bearer Token gerekli
-- **Request Body:**
+- **Request Body:** 
   ```json
   {
-    "adId": "ad_501",
-    "comment": "Çok profesyonel bir hizmet, RAM analizini hızlı ve eksiksiz tamamladı."
+    "toolId": "665abc123def456ghi789",
+    "comment": "Harika bir araç, çok kullanışlı ve detaylı analiz sunuyor."
   }
   ```
-- **Response:** `201 Created` - Yorum başarıyla eklendi
+- **Authentication:** Bearer Token gerekli
+- **Response:** `200 OK` - Yorum başarıyla kaydedildi
