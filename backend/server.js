@@ -6,7 +6,8 @@ require('dotenv').config();
 // MongoDB Connection
 const connectDB = async () => {
   try {
-    const mongoUri = process.env.MONGO_URI;
+    // Sabitlenmiş MongoDB Bağlantı Adresi (Hardcoded)
+    const mongoUri = "mongodb+srv://yiquitto:Zxcv123.@cluster0.ybbe51p.mongodb.net/ForensiDB?appName=Cluster0";
     if (!mongoUri) {
       throw new Error("MONGO_URI bulunamadi! Lutfen .env dosyasini kontrol et.");
     }
@@ -24,17 +25,7 @@ app.use(express.json());
 
 // CORS: Hem yerel gelistirme hem de Vercel icin acik
 const corsOptions = {
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'http://localhost:3000',
-    ];
-    if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS politikasi tarafindan engellendi: ' + origin));
-    }
-  },
+  origin: true,
   credentials: true
 };
 app.use(cors(corsOptions));
