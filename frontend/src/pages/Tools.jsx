@@ -92,7 +92,7 @@ const Tools = () => {
             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
             onClick={() => openDetail(tool._id)}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.8rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>ğŸ› ï¸</span>
+              <span style={{ fontSize: '1.5rem' }}>🛠️</span>
               <span className="badge" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--accent)' }}>{tool.category}</span>
             </div>
             <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.4rem' }}>{tool.name}</h3>
@@ -100,8 +100,8 @@ const Tools = () => {
               {tool.description && tool.description.length > 100 ? tool.description.substring(0, 100) + '...' : tool.description}
             </p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#eab308', fontSize: '0.9rem' }}>? {(tool.overallRating || 0).toFixed(1)}</span>
-              <span style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: '500' }}>Detaylari Goruntule (G14) �</span>
+              <span style={{ color: '#eab308', fontSize: '0.9rem' }}>★ {(tool.overallRating || 0).toFixed(1)}</span>
+              <span style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: '500' }}>Detaylari Goruntule (G14) →</span>
             </div>
           </div>
         ))}
@@ -115,7 +115,7 @@ const Tools = () => {
               <div>
                 <span className="badge" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--accent)', marginBottom: '0.5rem', display: 'inline-block' }}>{selectedTool.category}</span>
                 <h2 style={{ fontSize: '1.3rem', fontWeight: '700' }}>{selectedTool.name}</h2>
-                <span style={{ color: '#eab308', fontSize: '1rem' }}>? {(selectedTool.overallRating || 0).toFixed(1)} Ortalama Puan</span>
+                <span style={{ color: '#eab308', fontSize: '1rem' }}>★ {(selectedTool.overallRating || 0).toFixed(1)} Ortalama Puan</span>
               </div>
               <button className="btn-secondary" onClick={() => setSelectedTool(null)} style={{ padding: '0.3rem 0.8rem' }}>Kapat</button>
             </div>
@@ -130,7 +130,7 @@ const Tools = () => {
                 <div key={i} style={{ background: 'rgba(0,0,0,0.25)', padding: '0.8rem 1rem', borderRadius: '10px', marginBottom: '0.5rem' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ background: 'var(--accent)', borderRadius: '50%', width: '24px', height: '24px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.7rem' }}>??</span>
+                      <span style={{ background: 'var(--accent)', borderRadius: '50%', width: '24px', height: '24px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.7rem' }}>👤</span>
                       <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--accent)' }}>
                         @{(r.userId && typeof r.userId === 'object') ? (r.userId.username || 'kullanici') : 'kullanici'}
                       </span>
@@ -138,7 +138,7 @@ const Tools = () => {
                     </div>
                     {r.rating && (
                       <span style={{ color: '#eab308', fontSize: '0.85rem', fontWeight: '600' }}>
-                        {'?'.repeat(r.rating)}{'?'.repeat(5 - r.rating)}
+                        {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
                       </span>
                     )}
                   </div>
@@ -157,7 +157,7 @@ const Tools = () => {
               <div className="input-group">
                 <label className="input-label">Puan Ver (G15)</label>
                 <select className="input-field" value={reviewForm.rating} onChange={e => setReviewForm({...reviewForm, rating: e.target.value})}>
-                  {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} - {'?'.repeat(n)}{'?'.repeat(5-n)}</option>)}
+                  {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} - {'★'.repeat(n)}{'☆'.repeat(5-n)}</option>)}
                 </select>
               </div>
               <div className="input-group">
