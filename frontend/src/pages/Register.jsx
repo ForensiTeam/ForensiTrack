@@ -47,7 +47,7 @@ const Register = () => {
           </div>
           <div className="input-group">
             <label className="input-label">Sifre</label>
-            <input className="input-field" type="password" placeholder="••••••••" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
+            <input className="input-field" type="password" placeholder="********" value={form.password} onChange={e => setForm({...form, password: e.target.value})} required />
           </div>
           <button className="btn-primary" type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>Kayit Ol (G1)</button>
         </form>

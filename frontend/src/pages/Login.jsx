@@ -43,7 +43,7 @@ const Login = ({ setIsAuthenticated }) => {
           </div>
           <div className="input-group">
             <label className="input-label">Sifre</label>
-            <input className="input-field" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
+            <input className="input-field" type="password" placeholder="********" value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
           <button className="btn-primary" type="submit" style={{ width: '100%', marginTop: '0.5rem' }}>Giris Yap (G2)</button>
         </form>

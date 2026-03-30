@@ -58,7 +58,7 @@ const Ads = () => {
   const deleteAd = async (id) => {
     const ad = ads.find(a => a._id === id);
     if (ad && ad.userId !== currentUserId) {
-      setMsg({ text: 'Sadece kendi ilaninizi silebilirsiniz! (G6 Kuralı)', type: 'error' });
+      setMsg({ text: 'Sadece kendi ilaninizi silebilirsiniz! (G6 Kurali)', type: 'error' });
       setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       return;
     }
@@ -66,7 +66,7 @@ const Ads = () => {
       const res = await fetch(`${API_BASE}/api/ads/${id}`, { method: 'DELETE', headers });
       if (res.ok || res.status === 204) fetchAds();
       else if (res.status === 403) {
-        setMsg({ text: 'Sadece kendi ilaninizi silebilirsiniz! (G6 Kuralı)', type: 'error' });
+        setMsg({ text: 'Sadece kendi ilaninizi silebilirsiniz! (G6 Kurali)', type: 'error' });
         setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       }
     } catch (err) { setMsg({ text: 'Silme basarisiz', type: 'error' }); }
@@ -75,7 +75,7 @@ const Ads = () => {
   // G5: Duzenle butonuna basildiginda sahiplik kontrolu
   const openEdit = (ad) => {
     if (ad.userId !== currentUserId) {
-      setMsg({ text: 'Sadece kendi ilaninizi duzenleyebilirsiniz! (G5 Kuralı)', type: 'error' });
+      setMsg({ text: 'Sadece kendi ilaninizi duzenleyebilirsiniz! (G5 Kurali)', type: 'error' });
       setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       return;
     }
