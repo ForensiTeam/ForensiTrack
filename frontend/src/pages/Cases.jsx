@@ -119,7 +119,7 @@ const Cases = () => {
                 <ul style={{ listStyle: 'none', padding: 0, maxHeight: '120px', overflowY: 'auto', marginBottom: '0.8rem' }}>
                   {c.notes.map((n, i) => (
                     <li key={i} style={{ fontSize: '0.8rem', marginBottom: '0.3rem', paddingBottom: '0.3rem', borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'var(--text-primary)' }}>
-                      ğŸ“ {n.content || n.note || n.text || JSON.stringify(n)}
+                      📝 {n.content || n.note || n.text || JSON.stringify(n)}
                     </li>
                   ))}
                 </ul>
