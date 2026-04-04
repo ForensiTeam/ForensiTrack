@@ -51,4 +51,17 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+
+    // Render Uyuma Engelleyici: Her 14 dakikada kendi kendine ping at
+    // Render ucretsiz planda 15 dk istek gelmezse sunucuyu uyutur.
+    // Bu kod sunucunun hic uyumamasini saglar.
+    const SELF_URL = 'https://forensitrack-api.onrender.com';
+    setInterval(() => {
+        const https = require('https');
+        https.get(SELF_URL, (res) => {
+            console.log(`[Keep-Alive] Render ping gonderildi - Durum: ${res.statusCode}`);
+        }).on('error', (err) => {
+            console.error('[Keep-Alive] Ping hatasi:', err.message);
+        });
+    }, 14 * 60 * 1000); // 14 dakika
 });
