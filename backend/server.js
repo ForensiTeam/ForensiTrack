@@ -17,7 +17,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 
 // Basic Route
 app.get('/', (req, res) => {
-    res.json({ message: 'ForensiTrack API is running!' });
+  res.json({ message: 'ForensiTrack API is running!' });
 });
 
 app.use('/api/auth', authRoutes);
@@ -29,27 +29,36 @@ app.use('/api/reviews', reviewRoutes);
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = "mongodb+srv://yiquitto:Zxcv123.@cluster0.ybbe51p.mongodb.net/ForensiDB?appName=Cluster0";
 
-// MongoDB baglantisi TAMAMEN kurulduktan SONRA sunucuyu baslatiyoruz.
-// Bu sayede Render'in soguk baslangicinda ilk istek timeout yemiyor.
-console.log("MongoDB Atlas veritabanina baglaniliyor...");
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log("MongoDB (Atlas) Basariyla Baglandi");
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+// Sunucu HEMEN basliyor (Render health check icin zorunlu)
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
-      // Render Uyuma Engelleyici: Her 14 dakikada kendi kendine ping at
-      const https = require('https');
-      setInterval(() => {
-        https.get('https://forensitrack-api.onrender.com', (res) => {
-          console.log(`[Keep-Alive] Ping gonderildi - Durum: ${res.statusCode}`);
-        }).on('error', (err) => {
-          console.error('[Keep-Alive] Ping hatasi:', err.message);
-        });
-      }, 14 * 60 * 1000); // 14 dakika
+// MongoDB ARKA PLANDA baglanıyor - sunucu hata verse de devam eder
+const connectDB = async () => {
+  try {
+    console.log("MongoDB Atlas veritabanina baglaniliyor...");
+    await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
     });
-  })
-  .catch((err) => {
-    console.error("MongoDB Atlas Baglanti Hatasi: ", err);
-    process.exit(1);
-  });
+    console.log("MongoDB (Atlas) Basariyla Baglandi");
+
+    // Render Uyuma Engelleyici: Her 14 dakikada kendi kendine ping
+    const https = require('https');
+    setInterval(() => {
+      https.get('https://forensitrack-api.onrender.com', (res) => {
+        console.log(`[Keep-Alive] Ping - Durum: ${res.statusCode}`);
+      }).on('error', (err) => {
+        console.error('[Keep-Alive] Hata:', err.message);
+      });
+    }, 14 * 60 * 1000);
+
+  } catch (err) {
+    console.error("MongoDB Baglanti Hatasi:", err.message);
+    console.log("30 saniye sonra tekrar deneniyor...");
+    setTimeout(connectDB, 30000); // crash etme, yeniden dene
+  }
+};
+
+connectDB();
