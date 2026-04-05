@@ -28,20 +28,13 @@ const Ads = () => {
 
   useEffect(() => { fetchAds(); }, []);
 
-  // G7 + G8 + Siralama: Client-side anlık filtreleme (backend API da cagrilir - YAML uyumu)
-  const filteredAds = [...ads]
-    .filter(ad => {
-      const matchSearch = !searchQuery.trim() ||
-        ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ad.description.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchCategory = !filterCategory || ad.category === filterCategory;
-      return matchSearch && matchCategory;
-    })
-    .sort((a, b) => {
-      if (sortByPrice === 'asc') return a.price - b.price;
-      if (sortByPrice === 'desc') return b.price - a.price;
-      return 0;
-    });
+  // Siralama client-side
+  const sortedAds = [...ads].sort((a, b) => {
+    if (sortByPrice === 'asc') return a.price - b.price;
+    if (sortByPrice === 'desc') return b.price - a.price;
+    return 0;
+  });
+
 
   // G3: Ilan Ekleme / G5: Ilan Guncelleme
   const handleSubmit = async (e) => {
@@ -98,25 +91,58 @@ const Ads = () => {
     setIsModalOpen(true);
   };
 
-  // G7: Ilan Arama - Backend API cagrilir (YAML uyumu), display client-side filteredAds ile
+  // G7: Ilan Arama - SADECE Ara butonuna basilinca calisir
   const searchAds = async () => {
-    // API cagrisi - YAML spec geregi
-    if (searchQuery.trim()) {
-      fetch(`${API_BASE}/api/ads/search?query=${encodeURIComponent(searchQuery)}`, { headers })
-        .catch(err => console.error('Search API:', err));
+    if (!searchQuery.trim()) {
+      // Bos query - aktif kategori filtresi varsa onu koru
+      if (filterCategory) {
+        try {
+          const res = await fetch(`${API_BASE}/api/ads/filter?category=${encodeURIComponent(filterCategory)}`, { headers });
+          if (res.ok) setAds(await res.json());
+        } catch (err) { console.error(err); }
+      } else {
+        fetchAds();
+      }
+      return;
     }
-    // Display zaten filteredAds computed variable ile anlık guncelleniyor
+    try {
+      const res = await fetch(`${API_BASE}/api/ads/search?query=${encodeURIComponent(searchQuery)}`, { headers });
+      if (res.ok) {
+        const results = await res.json();
+        // Kategori de seciliyse client-side kesisim al
+        const filtered = filterCategory ? results.filter(ad => ad.category === filterCategory) : results;
+        setAds(filtered);
+      }
+    } catch (err) { console.error(err); }
   };
 
-  // G8: Ilan Filtreleme - Backend API cagrilir (YAML uyumu), display client-side filteredAds ile
-  const filterAds = (cat) => {
+  // G8: Ilan Filtreleme - dropdown degisince anlik calisir
+  const filterAds = async (cat) => {
     setFilterCategory(cat);
-    // API cagrisi - YAML spec geregi
-    if (cat) {
-      fetch(`${API_BASE}/api/ads/filter?category=${encodeURIComponent(cat)}`, { headers })
-        .catch(err => console.error('Filter API:', err));
+    if (!cat) {
+      // Kategori kaldirildi - arama varsa yeniden ara, yoksa hepsini getir
+      if (searchQuery.trim()) {
+        try {
+          const res = await fetch(`${API_BASE}/api/ads/search?query=${encodeURIComponent(searchQuery)}`, { headers });
+          if (res.ok) setAds(await res.json());
+        } catch (err) { console.error(err); }
+      } else {
+        fetchAds();
+      }
+      return;
     }
-    // Display zaten filteredAds computed variable ile anlık guncelleniyor
+    try {
+      const res = await fetch(`${API_BASE}/api/ads/filter?category=${encodeURIComponent(cat)}`, { headers });
+      if (res.ok) {
+        const results = await res.json();
+        // Arama query de varsa client-side kesisim al
+        const filtered = searchQuery.trim() ? results.filter(ad =>
+          ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          ad.description.toLowerCase().includes(searchQuery.toLowerCase())
+        ) : results;
+        setAds(filtered);
+      }
+    } catch (err) { console.error(err); }
   };
 
 
@@ -147,7 +173,7 @@ const Ads = () => {
 
       {/* G4: Ilan Listesi */}
       <div className="cards-grid">
-        {filteredAds.map(ad => (
+        {sortedAds.map(ad => (
           <div key={ad._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.8rem' }}>
               <span className="badge" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--accent)' }}>{ad.category}</span>
@@ -161,7 +187,7 @@ const Ads = () => {
             </div>
           </div>
         ))}
-        {filteredAds.length === 0 && (
+        {ads.length === 0 && (
           <div className="glass-panel" style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
             Henuz hizmet ilani bulunmuyor.
           </div>
