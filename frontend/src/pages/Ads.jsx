@@ -17,7 +17,7 @@ const Ads = () => {
 
   // JWT'den kullanici ID'si al
   let currentUserId = '';
-  try { currentUserId = JSON.parse(atob(token.split('.')[1])).userId; } catch(e) {}
+  try { currentUserId = JSON.parse(atob(token.split('.')[1])).userId; } catch (e) { }
 
   const fetchAds = async () => {
     try {
@@ -90,23 +90,45 @@ const Ads = () => {
     setIsModalOpen(true);
   };
 
-  // G7: Ilan Arama
+  // G7: Ilan Arama - mevcut kategori filtresini de dikkate alir
   const searchAds = async () => {
-    if (!searchQuery.trim()) return fetchAds();
+    if (!searchQuery.trim()) {
+      // Bos arama - kategori varsa onu uygula, yoksa hepsini getir
+      return filterCategory ? applyFilter(filterCategory) : fetchAds();
+    }
     try {
       const res = await fetch(`${API_BASE}/api/ads/search?query=${encodeURIComponent(searchQuery)}`, { headers });
-      if (res.ok) setAds(await res.json());
+      if (res.ok) {
+        const results = await res.json();
+        // Arama sonucuna kategori filtresini de uygula
+        const filtered = filterCategory ? results.filter(ad => ad.category === filterCategory) : results;
+        setAds(filtered);
+      }
     } catch (err) { console.error(err); }
   };
 
-  // G8: Ilan Filtreleme
-  const filterAds = async (cat) => {
-    setFilterCategory(cat);
-    if (!cat) return fetchAds();
+  // G8: Ilan Filtreleme - mevcut arama sorgusunu da dikkate alir
+  const applyFilter = async (cat) => {
+    if (!cat) {
+      return searchQuery.trim() ? searchAds() : fetchAds();
+    }
     try {
       const res = await fetch(`${API_BASE}/api/ads/filter?category=${encodeURIComponent(cat)}`, { headers });
-      if (res.ok) setAds(await res.json());
+      if (res.ok) {
+        const results = await res.json();
+        // Filtre sonucuna arama sorgusunu da uygula
+        const filtered = searchQuery.trim() ? results.filter(ad =>
+          ad.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          ad.description.toLowerCase().includes(searchQuery.toLowerCase())
+        ) : results;
+        setAds(filtered);
+      }
     } catch (err) { console.error(err); }
+  };
+
+  const filterAds = async (cat) => {
+    setFilterCategory(cat);
+    await applyFilter(cat);
   };
 
   return (
@@ -165,19 +187,19 @@ const Ads = () => {
             <form onSubmit={handleSubmit}>
               <div className="input-group">
                 <label className="input-label">Baslik</label>
-                <input className="input-field" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
+                <input className="input-field" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
               </div>
               <div className="input-group">
                 <label className="input-label">Aciklama</label>
-                <textarea className="input-field" rows="3" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required />
+                <textarea className="input-field" rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} required />
               </div>
               <div className="input-group">
                 <label className="input-label">Fiyat (TL)</label>
-                <input className="input-field" type="number" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} required />
+                <input className="input-field" type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
               </div>
               <div className="input-group">
                 <label className="input-label">Kategori</label>
-                <select className="input-field" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
+                <select className="input-field" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}>
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
