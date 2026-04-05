@@ -1,1 +1,0 @@
-const mongoose = require('mongoose'); async function test(){ try{ await mongoose.connect('mongodb+srv://yiquitto:Zxcv123.@cluster0.ybbe51p.mongodb.net/ForensiDB?appName=Cluster0'); console.log('BAÞARILI! Þifre Doðru!'); process.exit(0); }catch(e){ console.error('Hata: ', e.message); process.exit(1); } } test();
