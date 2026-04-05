@@ -1,0 +1,18 @@
+﻿b5f770a feat(ummuhan): Vaka Sistemi (G9-G12) ve Ara├ğ Yorumlar─▒ (G13-G16) Eklendi
+ Ummuhan-Atmaca/Ummuhan-Atmaca-Gereksinimler.md     |  16 +-
+ .../Ummuhan-Atmaca-Mobil-Backend-Gorevleri.md      |   1 +
+ .../Ummuhan-Atmaca-Mobil-Frontend-Gorevleri.md     |   1 +
+ .../Ummuhan-Atmaca-Rest-API-Gorevleri.md           |  80 ++++-----
+ .../Ummuhan-Atmaca-Web-Frontend-Gorevleri.md       | 129 +++++++++++++++
+ backend/controllers/caseController.js              |  60 +++++++
+ backend/controllers/reviewController.js            |  52 ++++++
+ backend/controllers/toolController.js              |  50 ++++++
+ backend/models/Case.js                             |  29 ++++
+ backend/models/Review.js                           |  11 ++
+ backend/models/Tool.js                             |  11 ++
+ backend/routes/caseRoutes.js                       |  22 +++
+ backend/routes/reviewRoutes.js                     |   9 ++
+ backend/routes/toolRoutes.js                       |  10 ++
+ frontend/src/pages/Cases.jsx                       | 178 +++++++++++++++++++++
+ frontend/src/pages/Tools.jsx                       | 177 ++++++++++++++++++++
+ 16 files changed, 783 insertions(+), 53 deletions(-)

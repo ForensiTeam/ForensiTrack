@@ -1,0 +1,23 @@
+﻿980d570 feat(yigit): Auth (G1-G2) ve ─░lan Sistemi (G3-G8) Eklendi, Altyap─▒ D├╝zenlendi
+ .gitignore                                         |  37 ++++
+ Yigit-Bayraktar/Yigit-Bayraktar-Gereksinimler.md   |  20 +--
+ .../Yigit-Bayraktar-Mobil-Backend-Gorevleri.md     |   1 +
+ .../Yigit-Bayraktar-Mobil-Frontend-Gorevleri.md    |   1 +
+ .../Yigit-Bayraktar-Rest-API-Gorevleri.md          |  84 ++++-----
+ .../Yigit-Bayraktar-Web-Frontend-Gorevleri.md      | 100 +++++++++++
+ backend/controllers/adController.js                | 108 +++++++++++
+ backend/controllers/authController.js              |  37 ++++
+ backend/middleware/authMiddleware.js               |  19 ++
+ backend/models/Ad.js                               |  15 ++
+ backend/models/User.js                             |  10 ++
+ backend/routes/adRoutes.js                         |  13 ++
+ backend/routes/authRoutes.js                       |   8 +
+ backend/seed.js                                    |  31 ++++
+ backend/server.js                                  |  63 +++++++
+ frontend/src/App.jsx                               |  66 +++++++
+ frontend/src/api.js                                |   6 +
+ frontend/src/index.css                             | 197 +++++++++++++++++++++
+ frontend/src/pages/Ads.jsx                         | 194 ++++++++++++++++++++
+ frontend/src/pages/Login.jsx                       |  58 ++++++
+ frontend/src/pages/Register.jsx                    |  62 +++++++
+ 21 files changed, 1073 insertions(+), 57 deletions(-)
