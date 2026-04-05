@@ -14,7 +14,6 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Preflight OPTIONS her zaman 200 donsun
 
 const authRoutes = require('./routes/authRoutes');
 const adRoutes = require('./routes/adRoutes');
