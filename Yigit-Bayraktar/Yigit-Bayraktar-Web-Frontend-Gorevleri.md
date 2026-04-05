@@ -1,5 +1,5 @@
 # Yiğit Bayraktar'ın Web Frontend Görevleri
-**Front-end Test Videosu:** [Link buraya eklenecek](https://example.com)
+**Front-end Test Videosu:** [https://youtu.be/gJ5xLHHdoiw](https://youtu.be/gJ5xLHHdoiw)
 
 ## 1. Kayıt Olma Sayfası (G1)
 - **API Endpoint:** `POST /api/auth/register`
