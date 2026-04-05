@@ -22,8 +22,8 @@ Adli Bilişim ve Vaka Yönetim Sistemleri
 ## Proje Linkleri
 
 (Olası Adresler)
-* **REST API Adresi:** https://fd7cec20-77d6-4826-a8d6-7721d6b08b60.mock.pstmn.io
-* **Web Frontend Adresi:** [frontend.forensitrack.com](https://www.google.com/search?q=https://frontend.forensitrack.com)
+* **REST API Adresi:** [https://forensitrack-api.onrender.com](https://forensitrack-api.onrender.com)
+* **Web Frontend Adresi:** [https://forensi-track.vercel.app](https://forensi-track.vercel.app)
 ---
 
 ## Proje Ekibi

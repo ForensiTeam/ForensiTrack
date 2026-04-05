@@ -14,14 +14,12 @@ info:
     email: yigit@forensitrack.com
 
 servers:
+  - url: https://forensitrack-api.onrender.com
+    description: Uretim (Production) Sunucusu (Render - Aktif)
   - url: https://fd7cec20-77d6-4826-a8d6-7721d6b08b60.mock.pstmn.io
-    description: Postman Mock Sunucusu (Aktif)
-  - url: https://forensitrack.api.com
-    description: Üretim sunucusu (Production)
-  - url: https://staging.forensitrack.api.com
-    description: Test sunucusu (Staging)
-  - url: http://localhost:3000
-    description: Yerel geliştirme sunucusu (Development)
+    description: Postman Mock Sunucusu
+  - url: http://localhost:5000
+    description: Yerel gelistirme sunucusu (Development)
 
 tags:
   - name: Auth

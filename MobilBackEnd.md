@@ -1,6 +1,6 @@
 # Mobil Backend (REST API Bağlantısı) Görev Dağılımı
 
-**REST API Adresi:** [api.yazmuh.com](https://api.yazmuh.com)
+**REST API Adresi:** [https://forensitrack-api.onrender.com](https://forensitrack-api.onrender.com)
 
 Bu dokümanda, mobil uygulamanın REST API ile iletişimini sağlayan backend entegrasyon görevleri listelenmektedir. Her grup üyesi, kendisine atanan API endpoint'lerinin mobil uygulamadan çağrılması ve yönetilmesinden sorumludur.
 
@@ -20,7 +20,7 @@ Bu dokümanda, mobil uygulamanın REST API ile iletişimini sağlayan backend en
 ## Genel Mobil Backend Prensipleri
 
 ### 1. HTTP Client Yapılandırması
-- **Base URL:** `https://api.yazmuh.com/v1`
+- **Base URL:** `https://forensitrack-api.onrender.com/api`
 - **Timeout:** Request timeout 30 saniye, connect timeout 10 saniye
 - **Headers:** 
   - `Content-Type: application/json`
