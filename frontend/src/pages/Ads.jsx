@@ -56,8 +56,8 @@ const Ads = () => {
   // G3: Ilan Ekleme / G5: Ilan Guncelleme
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = editingAd ? `${API_BASE}/api/ads/${editingAd._id}/update` : `${API_BASE}/api/ads`;
-    const method = 'POST';
+    const url = editingAd ? `${API_BASE}/api/ads/${editingAd._id}` : `${API_BASE}/api/ads`;
+    const method = editingAd ? 'PUT' : 'POST';
     try {
       const res = await fetch(url, { method, headers, body: JSON.stringify({ ...formData, price: Number(formData.price) }) });
       if (res.ok) {
@@ -85,8 +85,8 @@ const Ads = () => {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/api/ads/${id}/delete`, {
-        method: 'POST',
+      const res = await fetch(`${API_BASE}/api/ads/${id}`, {
+        method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (res.ok || res.status === 204) fetchAds();
