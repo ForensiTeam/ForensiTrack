@@ -1,6 +1,6 @@
 # Ümmühan Atmaca'nın REST API Metotları
 
-**API Test Videosu:** [Link buraya eklenecek](https://example.com)
+**API Test Videosu:** [https://youtu.be/5tNAN7GkdWE](https://youtu.be/5tNAN7GkdWE)
 
 ## 1. Vaka Oluşturma (G9)
 - **Endpoint:** `POST /api/cases`
