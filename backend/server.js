@@ -27,7 +27,7 @@ app.use('/api/tools', toolRoutes);
 app.use('/api/reviews', reviewRoutes);
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = "mongodb+srv://yiquitto:Zxcv123.@cluster0.ybbe51p.mongodb.net/ForensiDB?appName=Cluster0";
+const MONGO_URI = "mongodb+srv://forensiuser:ForensiPass2024@cluster0.e6youn0.mongodb.net/ForensiDB?appName=Cluster0";
 
 // Sunucu HEMEN basliyor (Render health check icin zorunlu)
 app.listen(PORT, () => {
