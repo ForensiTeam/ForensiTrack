@@ -20,6 +20,12 @@ const Ads = () => {
   let currentUserId = '';
   try { currentUserId = JSON.parse(atob(token.split('.')[1])).userId; } catch (e) { }
 
+  // Sahiplik kontrolu icin: userId karsilastirmasi (ObjectId vs string)
+  const isOwner = (ad) => {
+    const adUser = ad.userId?._id || ad.userId;
+    return String(adUser) === String(currentUserId);
+  };
+
   const fetchAds = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/ads`, { headers });
@@ -63,13 +69,17 @@ const Ads = () => {
         setMsg({ text: data.message, type: 'error' });
         setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       }
-    } catch (err) { setMsg({ text: 'Islem basarisiz', type: 'error' }); }
+    } catch (err) { 
+      console.error('handleSubmit error:', err);
+      setMsg({ text: 'Islem basarisiz: ' + err.message, type: 'error' }); 
+      setTimeout(() => setMsg({ text: '', type: '' }), 4000);
+    }
   };
 
   // G6: Ilan Silme
   const deleteAd = async (id) => {
     const ad = ads.find(a => a._id === id);
-    if (ad && ad.userId !== currentUserId) {
+    if (ad && !isOwner(ad)) {
       setMsg({ text: 'Sadece kendi ilaninizi silebilirsiniz! (G6 Kurali)', type: 'error' });
       setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       return;
@@ -77,16 +87,21 @@ const Ads = () => {
     try {
       const res = await fetch(`${API_BASE}/api/ads/${id}`, { method: 'DELETE', headers });
       if (res.ok || res.status === 204) fetchAds();
-      else if (res.status === 403) {
-        setMsg({ text: 'Sadece kendi ilaninizi silebilirsiniz! (G6 Kurali)', type: 'error' });
+      else {
+        const data = await res.json().catch(() => ({}));
+        setMsg({ text: data.message || 'Silme basarisiz (Sunucu hatasi)', type: 'error' });
         setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       }
-    } catch (err) { setMsg({ text: 'Silme basarisiz', type: 'error' }); }
+    } catch (err) { 
+      console.error('deleteAd error:', err);
+      setMsg({ text: 'Silme basarisiz: ' + err.message, type: 'error' }); 
+      setTimeout(() => setMsg({ text: '', type: '' }), 4000);
+    }
   };
 
   // G5: Duzenle butonuna basildiginda sahiplik kontrolu
   const openEdit = (ad) => {
-    if (ad.userId !== currentUserId) {
+    if (!isOwner(ad)) {
       setMsg({ text: 'Sadece kendi ilaninizi duzenleyebilirsiniz! (G5 Kurali)', type: 'error' });
       setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       return;
