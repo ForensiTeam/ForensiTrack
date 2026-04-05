@@ -50,7 +50,7 @@ const connectDB = async () => {
     });
     console.log("MongoDB (Atlas) Basariyla Baglandi");
 
-    // Render Uyuma Engelleyici: Her 14 dakikada kendi kendine ping
+    // Render Uyuma Engelleyici: Her 5 dakikada kendi kendine ping
     const https = require('https');
     setInterval(() => {
       https.get('https://forensitrack-api.onrender.com', (res) => {
@@ -58,7 +58,7 @@ const connectDB = async () => {
       }).on('error', (err) => {
         console.error('[Keep-Alive] Hata:', err.message);
       });
-    }, 14 * 60 * 1000);
+    }, 5 * 60 * 1000);
 
   } catch (err) {
     console.error("MongoDB Baglanti Hatasi:", err.message);
