@@ -6,7 +6,7 @@ Bu doküman, ForensiTrack adli bilişim platformu için OpenAPI Specification (O
 
 ## OpenAPI Specification
 
-`yaml
+```yaml
 openapi: 3.0.3
 info:
   title: ForensiTrack Adli Bilişim Platformu API
@@ -1404,4 +1404,4 @@ components:
           type: integer
           description: HTTP durum kodu
           example: 404
-`
+```
