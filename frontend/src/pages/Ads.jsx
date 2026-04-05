@@ -85,7 +85,10 @@ const Ads = () => {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/api/ads/${id}`, { method: 'DELETE', headers });
+      const res = await fetch(`${API_BASE}/api/ads/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       if (res.ok || res.status === 204) fetchAds();
       else {
         const data = await res.json().catch(() => ({}));

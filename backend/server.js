@@ -6,8 +6,15 @@ require('dotenv').config();
 const app = express();
 app.use(express.json());
 
-// CORS: Hem yerel gelistirme hem de Vercel icin acik
-app.use(cors({ origin: true, credentials: true }));
+// CORS: PUT/DELETE preflight icin tum metodlar ve headerlar acik
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Preflight OPTIONS her zaman 200 donsun
 
 const authRoutes = require('./routes/authRoutes');
 const adRoutes = require('./routes/adRoutes');
