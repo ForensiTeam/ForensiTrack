@@ -1,143 +1,113 @@
-# Video Sunum
+# Video Sunum ve Çekim Planı
 
 ## Sunum Videosu
 
-> **Video Linki:** [Sunum videosu linki buraya eklenecek](https://example.com)
+> **Video Linki:** [https://youtu.be/-BQBAJC0ljw](https://youtu.be/-BQBAJC0ljw)
 
 ---
 
 ## Sunum Yapısı
 
-### 1. Grup Lideri - Açılış Konuşması (1-2 dakika)
+### 1. Grup Lideri (Yiğit) - Açılış Konuşması (1-2 dakika)
 
 **Konuşma İçeriği:**
-- Grup adının tanıtılması
-- Projenin genel tanıtımı
-- Projenin amacı ve kapsamı
-- Sunumun yapısının kısaca açıklanması
+- Ekibin tanıtımı.
+- ForensiTrack projesinin genel tanıtımı (Adli bilişim uzmanları ve müşterileri buluşturan, vaka ve araç takibi yapan platform).
+- Projenin amacı ve kapsamı.
+- Sunumun yapısının kısaca açıklanması (Toplam 16 Gereksinimin 2 kişi arasında nasıl paylaşıldığı).
 
 **Örnek Konuşma:**
-> "Merhaba, ben [Grup Lideri İsmi]. [Grup Adı] ekibi olarak [Proje Adı] projesini geliştirdik. Bu proje [kısa proje açıklaması]. Bugün sizlere projemizi ve ekibimizin çalışmalarını sunacağız. Her ekip üyesi kendini tanıtacak ve sorumlu olduğu gereksinimleri gösterecek."
+> "Merhaba, ben Yiğit Bayraktar. Takım arkadaşım Ümmühan Atmaca ile birlikte ForensiTrack projesini geliştirdik. ForensiTrack, adli bilişim hizmetlerine ihtiyaç duyan müşterilerle, bu hizmetleri veren uzmanları bir araya getiren spesifik bir ilan ve vaka yönetim platformudur. Bugün sizlere projemizin uçtan uca çalıştığını canlı olarak göstereceğiz. İlk olarak ben kendi sorumluluğumda olan yetkilendirme ve ilan modüllerini anlatacağım, ardından sözü vaka, araç ve değerlendirme modüllerini sunması için Ümmühan'a bırakacağım."
 
 ---
 
 ### 2. Ekip Üyeleri - Kişisel Tanıtım ve Gereksinim Sunumu
 
-Her ekip üyesi için aşağıdaki yapı takip edilecektir:
+#### A) Yiğit Bayraktar'ın Sunum Bölümü (Kişisel Tanıtım: 30sn | Demo: 6-8 dk)
 
-#### Format (Her üye için 4-6 dakika)
-
-**A) Kişisel Tanıtım (30-45 saniye)**
-- Yüz görünecek şekilde kamera karşısında
-- İsim ve soyisim
-- Ekipteki rolü
-- Sorumlu olduğu alan (Backend/Frontend/Mobil vb.)
-
-**B) Gereksinim Sunumu (3.5-5 dakika)**
-- Sorumlu olduğu gereksinimlerin listesi
-- Her gereksinimin kısa açıklaması
-- Canlı demo (ekran kaydı ile)
-- Her gereksinimin çalışır durumda olduğunun detaylı gösterilmesi
-- Her gereksinim için yeterli süre ayrılmalı (yaklaşık 1-1.5 dakika/gereksinim)
-
----
-
-### 3. Ekip Üyeleri Sunum Sırası
-
-#### Ali Tutar
 **Kişisel Tanıtım:**
-- İsim: Ali Tutar
+- "Merhaba, ben Yiğit Bayraktar. Projenin Full-Stack geliştiricisi olarak yetkilendirme, JWT bazlı güvenlik ve uzman ilan modüllerinden (G1'den G8'e kadar) sorumluyum."
 
-**Gereksinimler:**
-1. **Üye Olma**
-   - API Metodu: `POST /auth/register`
-   - Demo: Kullanıcı kayıt işleminin gösterilmesi
-
-2. **Profil Görüntüleme**
-   - API Metodu: `GET /users/{userId}`
-   - Demo: Kullanıcı profil bilgilerinin görüntülenmesi
-
-3. **Profil Güncelleme**
-   - API Metodu: `PUT /users/{userId}`
-   - Demo: Profil bilgilerinin güncellenmesi
-
-4. **Hesap Silme**
-   - API Metodu: `DELETE /users/{userId}`
-   - Demo: Hesap silme işleminin gösterilmesi
+**Gereksinimler ve Demo Akışı (Ekran Paylaşımıyla Gösterilecek):**
+1. **Kayıt Olma (G1)**
+   - API Metodu/Arayüz: `POST /api/auth/register` (Tasarımda Kayıt Ekranı)
+   - Demo: "Postman'den veya arayüzden yeni bir uzman hesabı oluşturuyorum..."
+2. **Giriş Yapma (G2)**
+   - API Metodu/Arayüz: `POST /api/auth/login` (Tasarımda Giriş Ekranı)
+   - Demo: "Oluşturduğum hesapla giriş yaparak token'ı alıyoruz ve güvenli sayfalara ulaşıyoruz."
+3. **İlan Ekleme (G3)**
+   - API Metodu/Arayüz: `POST /api/ads` (İlan Ekle Modal'ı)
+   - Demo: "Sisteme giriş yaptığım hesapla 'Fidye Yazılımı İnceleme' gibi bir adli bilişim ilanı yayınlıyorum."
+4. **İlan Listeleme (G4)**
+   - API Metodu/Arayüz: `GET /api/ads` (Ana Sayfa)
+   - Demo: "Eklediğimiz ilan ve daha önceki veritabanı kayıtları ana ilan havuzunda listeleniyor."
+5. **İlan Güncelleme (G5)**
+   - API Metodu/Arayüz: `PUT /api/ads/{adId}`
+   - Demo: "Yalnızca ilanın sahibi olduğumuz için 'Fiyat'ı veya 'Başlığı' güncelliyoruz. (Sahibi olmayan bunu yapamaz)"
+6. **İlan Silme (G6)**
+   - API Metodu/Arayüz: `DELETE /api/ads/{adId}`
+   - Demo: "Test için attığımız ilanı siliyoruz ve listeden kalktığını teyit ediyoruz."
+7. **İlan Arama (G7)**
+   - API Metodu/Arayüz: `GET /api/ads/search` (Genel Arama Çubuğu)
+   - Demo: "Kelime bazlı (Örn: 'Veri Kurtarma') arama yapıyorum ve sadece o ilanlar geliyor."
+8. **İlan Filtreleme (G8)**
+   - API Metodu/Arayüz: `GET /api/ads/filter` (Kategori Dropdown)
+   - Demo: "Sadece 'Mobil Adli Bilişimi' kategorisindeki uzmanlık ilanlarını filtreliyorum."
 
 ---
 
-#### Veli Yılmaz
+#### B) Ümmühan Atmaca'nın Sunum Bölümü (Kişisel Tanıtım: 30sn | Demo: 6-8 dk)
+
 **Kişisel Tanıtım:**
-- İsim: Veli Yılmaz
-- Rol: [Rol belirtilecek]
+- "Merhaba, ben Ümmühan Atmaca. Projenin Full-Stack geliştiricisi olarak vaka takip, araç veritabanı ve değerlendirme-yorum sistemlerinden (G9'dan G16'ya kadar) sorumluyum."
 
-**Gereksinimler:**
-- [Gereksinim 1]
-- [Gereksinim 2]
-- [Gereksinim 3]
-- [Gereksinim 4]
+**Gereksinimler ve Demo Akışı (Ekran Paylaşımıyla Gösterilecek):**
+1. **Vaka Oluşturma (G9)**
+   - API Metodu: `POST /api/cases`
+   - Demo: "Bir müşterinin analiz talebi üzerine sisteme yeni bir adli vaka kaydı oluşturuyorum."
+2. **Vaka Önceliklendirme (G10)**
+   - API Metodu: `PATCH /api/cases/{caseId}/priority`
+   - Demo: "Vakanın kritik seviyesini (Örn: Kritik/Orta) güncelliyorum."
+3. **Vaka Durum Güncelleme (G11)**
+   - API Metodu: `PATCH /api/cases/{caseId}/status`
+   - Demo: "Vakanın son durumunu (Açık'tan Çözüldü'ye) gibi geçiriyorum."
+4. **Not Ekleme (G12)**
+   - API Metodu: `POST /api/cases/{caseId}/notes`
+   - Demo: "Vaka üzerinde çalışan uzman olarak teknik not/'log incelemesi bitti' kaydı atıyorum."
+5. **Araç Listeleme (G13)**
+   - API Metodu: `GET /api/tools`
+   - Demo: "Sistemde rehber olarak sunulan adli bilişim araçlarını (Volatility, Autopsy vb.) listeliyoruz."
+6. **Araç Detay Görüntüleme (G14)**
+   - API Metodu: `GET /api/tools/{toolId}`
+   - Demo: "'Volatility 3' aracının detaylarına girip komutlarına/işlevlerine bakıyoruz."
+7. **Puan Verme (G15)**
+   - API Metodu: `POST /api/reviews/rate`
+   - Demo: "İşi tamamlanan uzmanın hizmet ilanına 5 puanlık bir skor gönderiyoruz."
+8. **Yorum Yapma (G16)**
+   - API Metodu: `POST /api/reviews/comment`
+   - Demo: "Puanladığımız hizmet altına memnuniyet yorumumuzu yazıyoruz."
 
 ---
 
-### 4. Grup Lideri - Kapanış Konuşması (1 dakika)
+### 3. Kapanış Konuşması (1 dakika)
 
 **Konuşma İçeriği:**
 - Tüm gereksinimlerin tamamlandığının özeti
 - Projenin başarıyla tamamlandığının vurgulanması
 
-**Örnek Konuşma:**
-> "Bugün sizlere [Proje Adı] projemizi sunduk. Tüm ekip üyelerimiz sorumlu oldukları gereksinimleri başarıyla tamamladılar ve çalışır durumda gösterdiler. Projemiz [kısa özet]. Teşekkürler!"
+**Örnek Konuşma (Yiğit veya Ümmühan):**
+> "Gördüğünüz gibi ForensiTrack, 16 temel gereksinimin tamamını başarıyla ve hatasız, yetkilendirmesiyle birlikte yürütmektedir. JWT token mekanizmasından tutun, MongoDB veritabanındaki CRUD (Ekleme/Düzenleme/Silme) işlemlerine kadar her iki farklı yapı (Vaka & İlan) aktif olarak entegre çalışmaktadır. Bizi izlediğiniz için teşekkür ederiz."
 
 ---
 
 ## Sunum Hazırlık Kontrol Listesi
 
-### Genel Hazırlık
-- [ ] Grup lideri açılış konuşmasını hazırladı
-- [ ] Her ekip üyesi kendi sunumunu hazırladı
-- [ ] Tüm gereksinimler çalışır durumda
-- [ ] Demo senaryoları hazırlandı
-- [ ] Test verileri ve hesaplar hazırlandı
+### Genel/Teknik Hazırlık
+- [ ] Yiğit ve Ümmühan ekran paylaşacakları programları hazırladı (OBS vb. veya Zoom Meets/Teams ile çekim)
+- [ ] Kamera, ışıklandırma ve kaliteli mikrofon test edildi
+- [ ] Render API, Vercel frontend ve Postman çekimden önce açılarak test edildi (Uyku devresini önlemek için)
 
-### Teknik Hazırlık
-- [ ] Video kayıt cihazı/kamera hazır
-- [ ] Mikrofon kalitesi test edildi
-- [ ] Işıklandırma uygun
-- [ ] Arka plan düzenlendi
-- [ ] Ekran kayıt yazılımı hazır (demo için)
-
-### Kişisel Hazırlık
-- [ ] Her ekip üyesi kendi bölümünü prova etti
-- [ ] Konuşma süreleri kontrol edildi
-- [ ] Gereksinimler ezberlendi veya notlar hazırlandı
-- [ ] Demo akışı prova edildi
-
----
-
-## Video Çekim Teknikleri
-
-### Kişisel Tanıtım Bölümü
-- **Kamera Açısı:** Yüz net görünecek şekilde
-- **Işık:** Yüzün iyi aydınlatıldığından emin olun
-- **Arka Plan:** Temiz ve profesyonel görünüm
-- **Görüntü:** Omuz üstü çekim
-- **Göz Teması:** Kameraya bakarak konuşun
-
-### Demo Bölümü
-- **Ekran Kaydı:** Net ve yüksek çözünürlükte
-- **Ses:** Demo sırasında açıklama yapın
-- **Hız:** Yavaş ve anlaşılır hareket edin
-- **Vurgu:** Önemli noktaları işaret edin
-
----
-
-## Zaman Yönetimi
-
-- **Grup Lideri Açılış:** 1-2 dakika
-- **Her Ekip Üyesi:** 4-6 dakika
-  - Kişisel tanıtım: 30-45 saniye
-  - Gereksinim sunumu: 3.5-5 dakika
-    - Her gereksinim için: yaklaşık 1-1.5 dakika
-- **Grup Lideri Kapanış:** 1-2 dakika
-- **Toplam Süre:** Yaklaşık 30-40 dakika (5 kişilik ekip için)
+### Kişisel Hazırlık ve Zamanlama
+- **Toplam Hedef Süre:** Yaklaşık 15-20 Dakika (2 kişi için çok ideal bir süre)
+- [ ] İkisinin de JWT token süreleri çekim esnasında düşmesin diye taze loginle başlanmalı.
+- [ ] Hata veya teknik aksaklık göstermemek adına "Ad-blocker" veya yerel Proxy/VPN gibi eklentilerin tüm tarayıcılarda kapalı olduğu kesinleştirilmelidir.
