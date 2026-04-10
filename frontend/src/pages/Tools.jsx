@@ -141,7 +141,7 @@ const Tools = () => {
             <div className="stat-value" style={{ color: 'var(--success)' }}>
               {tools.filter(t => (t.overallRating || 0) >= 4.5).length}
             </div>
-            <div className="stat-label">Premium Araç</div>
+            <div className="stat-label">Yüksek Puanlılar</div>
           </div>
         </div>
       )}
