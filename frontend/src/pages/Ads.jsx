@@ -167,13 +167,13 @@ const Ads = () => {
         </div>
         <div className="stat-card">
           <div className="stat-value" style={{ color: 'var(--success)' }}>
-            {ads.length > 0 ? Math.min(...ads.map(a => a.price)).toLocaleString('tr-TR') : 0}₺
+            {ads.length > 0 ? Math.min(...ads.map(a => a.price)).toLocaleString('tr-TR') + ' ₺' : '—'}
           </div>
           <div className="stat-label">En Düşük Fiyat</div>
         </div>
         <div className="stat-card">
           <div className="stat-value" style={{ color: 'var(--warning)' }}>
-            {ads.length > 0 ? Math.max(...ads.map(a => a.price)).toLocaleString('tr-TR') : 0}₺
+            {ads.length > 0 ? Math.max(...ads.map(a => a.price)).toLocaleString('tr-TR') + ' ₺' : '—'}
           </div>
           <div className="stat-label">En Yüksek Fiyat</div>
         </div>
