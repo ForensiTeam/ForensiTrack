@@ -2,17 +2,30 @@
 import React, { useState, useEffect } from 'react';
 import API_BASE from '../api';
 
+const categoryIcons = {
+  'Bellek Analizi': 'BA',
+  'Disk Analizi': 'DA',
+  'Ag Analizi': 'AA',
+  'Mobil Analiz': 'MA',
+  'Sifreleme': 'SI',
+  'Kapsamlı İnceleme': 'KI',
+  'Açık Kaynak Analiz': 'AK',
+  'Bellek (RAM) Analizi': 'RA',
+  'Mobil İnceleme': 'MI',
+  'Mobil & Bulut İnceleme': 'MB',
+  'Tersine Mühendislik': 'TM',
+};
+
 const Tools = () => {
   const [tools, setTools] = useState([]);
   const [selectedTool, setSelectedTool] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [reviewForm, setReviewForm] = useState({ rating: 5, comment: '' });
   const [isLoading, setIsLoading] = useState(true);
-  const [msg, setMsg] = useState('');
+  const [msg, setMsg] = useState({ text: '', type: '' });
   const token = localStorage.getItem('token');
   const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
 
-  // G13: Arac Listeleme
   const fetchTools = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/tools`, { headers });
@@ -23,7 +36,6 @@ const Tools = () => {
 
   useEffect(() => { fetchTools(); }, []);
 
-  // Seed helper
   const seedTools = async () => {
     try {
       await fetch(`${API_BASE}/api/tools/seed`, { method: 'POST', headers });
@@ -31,7 +43,6 @@ const Tools = () => {
     } catch (err) { console.error(err); }
   };
 
-  // G14: Arac Detay Goruntuleme
   const openDetail = async (toolId) => {
     try {
       const res = await fetch(`${API_BASE}/api/tools/${toolId}`, { headers });
@@ -44,128 +55,182 @@ const Tools = () => {
     } catch (err) { console.error(err); }
   };
 
-  // G15 + G16: Puan + Yorum Gonder
   const submitReview = async (e) => {
     e.preventDefault();
     if (!selectedTool) return;
     try {
-      // G15: Puan Ver
-      const rateRes = await fetch(`${API_BASE}/api/reviews/rate`, {
+      await fetch(`${API_BASE}/api/reviews/rate`, {
         method: 'POST', headers,
         body: JSON.stringify({ toolId: selectedTool._id, rating: Number(reviewForm.rating) })
       });
-      console.log('G15 Puan:', rateRes.status);
 
-      // G16: Yorum Yap
       if (reviewForm.comment.trim()) {
-        const commentRes = await fetch(`${API_BASE}/api/reviews/comment`, {
+        await fetch(`${API_BASE}/api/reviews/comment`, {
           method: 'POST', headers,
           body: JSON.stringify({ toolId: selectedTool._id, comment: reviewForm.comment })
         });
-        console.log('G16 Yorum:', commentRes.status);
       }
 
       setReviewForm({ rating: 5, comment: '' });
-      // Yorumlari yeniden yukle
       await openDetail(selectedTool._id);
       fetchTools();
-      setMsg('Degerlendirmeniz kaydedildi!');
-      setTimeout(() => setMsg(''), 3000);
+      setMsg({ text: 'Değerlendirmeniz kaydedildi!', type: 'success' });
+      setTimeout(() => setMsg({ text: '', type: '' }), 3000);
     } catch (err) { console.error(err); }
   };
+
+  // Stats
+  const avgRating = tools.length > 0
+    ? (tools.reduce((sum, t) => sum + (t.overallRating || 0), 0) / tools.length).toFixed(1)
+    : '0.0';
+  const categories = [...new Set(tools.map(t => t.category))];
 
   if (isLoading) return null;
 
   return (
     <div className="page-container">
-      {msg && <div className="alert alert-success">{msg}</div>}
+      {msg.text && (
+        <div className={`alert ${msg.type === 'error' ? 'alert-error' : 'alert-success'}`}>
+          {msg.type === 'error' ? '' : ''}{msg.text}
+        </div>
+      )}
+
       <div className="page-header">
-        <h1 className="page-title">Adli Bilisim Araclari (G13)</h1>
-        {tools.length === 0 && <button className="btn-primary" onClick={seedTools}>Arac Veritabanini Doldur</button>}
+        <div>
+          <h1 className="page-title">Adli Bilişim Araçları</h1>
+          <p className="page-subtitle">Profesyonel dijital adli analiz yazılımları</p>
+        </div>
+        {tools.length === 0 && (
+          <button className="btn-primary" onClick={seedTools}>
+            Araç Veritabanını Doldur
+          </button>
+        )}
       </div>
 
-      {/* G13: Arac Kartlari */}
+      {/* Stats */}
+      {tools.length > 0 && (
+        <div className="stat-row">
+          <div className="stat-card">
+            <div className="stat-value" style={{ color: 'var(--accent)' }}>{tools.length}</div>
+            <div className="stat-label">Toplam Araç</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value" style={{ color: 'var(--warning)' }}>★ {avgRating}</div>
+            <div className="stat-label">Ortalama Puan</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value" style={{ color: 'var(--purple)' }}>{categories.length}</div>
+            <div className="stat-label">Kategori</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-value" style={{ color: 'var(--success)' }}>
+              {tools.filter(t => (t.overallRating || 0) >= 4.5).length}
+            </div>
+            <div className="stat-label">Premium Araç</div>
+          </div>
+        </div>
+      )}
+
+      {/* Tool Cards */}
       <div className="cards-grid">
         {tools.map(tool => (
-          <div key={tool._id} className="glass-panel" style={{ padding: '1.5rem', cursor: 'pointer', transition: 'transform 0.2s' }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-            onClick={() => openDetail(tool._id)}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.8rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>🛠️</span>
-              <span className="badge" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--accent)' }}>{tool.category}</span>
+          <div key={tool._id} className="glass-panel tool-card" onClick={() => openDetail(tool._id)}>
+            <div className="tool-card-header">
+              <div className="tool-card-icon">
+                {categoryIcons[tool.category] || 'FT'}
+              </div>
+              <span className="badge" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>
+                {tool.category}
+              </span>
             </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.4rem' }}>{tool.name}</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '0.8rem', lineHeight: '1.5' }}>
-              {tool.description && tool.description.length > 100 ? tool.description.substring(0, 100) + '...' : tool.description}
+            <h3 className="tool-card-name">{tool.name}</h3>
+            <p className="tool-card-desc">
+              {tool.description && tool.description.length > 110 ? tool.description.substring(0, 110) + '...' : tool.description}
             </p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#eab308', fontSize: '0.9rem' }}>★ {(tool.overallRating || 0).toFixed(1)}</span>
-              <span style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: '500' }}>Detaylari Goruntule (G14) →</span>
+            <div className="tool-card-footer">
+              <span className="tool-rating">★ {(tool.overallRating || 0).toFixed(1)}</span>
+              <span className="tool-cta">Detaylar →</span>
             </div>
           </div>
         ))}
       </div>
 
-      {/* G14: Arac Detay Modal */}
+      {/* Tool Detail Modal */}
       {selectedTool && (
         <div className="modal-overlay" onClick={() => setSelectedTool(null)}>
           <div className="modal-content" style={{ maxWidth: '650px' }} onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
               <div>
-                <span className="badge" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--accent)', marginBottom: '0.5rem', display: 'inline-block' }}>{selectedTool.category}</span>
-                <h2 style={{ fontSize: '1.3rem', fontWeight: '700' }}>{selectedTool.name}</h2>
-                <span style={{ color: '#eab308', fontSize: '1rem' }}>★ {(selectedTool.overallRating || 0).toFixed(1)} Ortalama Puan</span>
+                <span className="badge" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)', marginBottom: '0.5rem', display: 'inline-block' }}>
+                  {selectedTool.category}
+                </span>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginTop: '0.3rem', letterSpacing: '-0.02em' }}>{selectedTool.name}</h2>
+                <span className="tool-rating" style={{ fontSize: '0.95rem' }}>★ {(selectedTool.overallRating || 0).toFixed(1)} Ortalama Puan</span>
               </div>
-              <button className="btn-secondary" onClick={() => setSelectedTool(null)} style={{ padding: '0.3rem 0.8rem' }}>Kapat</button>
+              <button className="btn-secondary" onClick={() => setSelectedTool(null)} style={{ padding: '0.35rem 0.8rem', fontSize: '0.8rem' }}>Kapat</button>
             </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '1.5rem' }}>{selectedTool.description}</p>
 
-            {/* Kullanici Degerlendirmeleri */}
-            <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.8rem', borderTop: '1px solid var(--glass-border)', paddingTop: '1rem' }}>
-              Kullanici Degerlendirmeleri ({reviews.length} yorum)
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.65', marginBottom: '1.5rem' }}>{selectedTool.description}</p>
+
+            <div className="divider" />
+
+            {/* Reviews */}
+            <h3 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem', marginTop: '0.5rem' }}>
+              Kullanıcı Değerlendirmeleri ({reviews.length})
             </h3>
-            <div style={{ maxHeight: '250px', overflowY: 'auto', marginBottom: '1.5rem' }}>
+            <div style={{ maxHeight: '250px', overflowY: 'auto', marginBottom: '1.25rem' }}>
               {reviews.length > 0 ? reviews.map((r, i) => (
-                <div key={i} style={{ background: 'rgba(0,0,0,0.25)', padding: '0.8rem 1rem', borderRadius: '10px', marginBottom: '0.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ background: 'var(--accent)', borderRadius: '50%', width: '24px', height: '24px', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', fontSize: '0.7rem' }}>👤</span>
-                      <span style={{ fontWeight: '600', fontSize: '0.9rem', color: 'var(--accent)' }}>
-                        @{(r.userId && typeof r.userId === 'object') ? (r.userId.username || 'kullanici') : 'kullanici'}
+                <div key={i} className="review-item">
+                  <div className="review-header">
+                    <div className="review-user">
+                      <div className="review-avatar">
+                        {((r.userId && typeof r.userId === 'object') ? (r.userId.username || 'K')[0] : 'K').toUpperCase()}
+                      </div>
+                      <span className="review-username">
+                        @{(r.userId && typeof r.userId === 'object') ? (r.userId.username || 'kullanıcı') : 'kullanıcı'}
                       </span>
-                      <span className="badge" style={{ background: 'rgba(16,185,129,0.15)', color: '#10b981', fontSize: '0.65rem' }}>Adli Uzman</span>
                     </div>
                     {r.rating && (
-                      <span style={{ color: '#eab308', fontSize: '0.85rem', fontWeight: '600' }}>
+                      <span className="review-stars">
                         {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
                       </span>
                     )}
                   </div>
-                  {r.comment && <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '0.3rem', lineHeight: '1.5' }}>"{r.comment}"</p>}
+                  {r.comment && <p className="review-comment">"{r.comment}"</p>}
                 </div>
               )) : (
-                <div style={{ background: 'rgba(0,0,0,0.15)', padding: '1.5rem', borderRadius: '10px', textAlign: 'center' }}>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Henuz degerlendirme yok. Ilk yorumu sen yap!</p>
+                <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: 'var(--radius-md)', textAlign: 'center' }}>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem' }}>Henüz değerlendirme yok. İlk yorumu sen yap!</p>
                 </div>
               )}
             </div>
 
-            {/* G15 + G16: Degerlendirme Formu */}
-            <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.8rem' }}>Deneyimini Paylas (G15-G16)</h3>
-            <form onSubmit={submitReview} style={{ background: 'rgba(59,130,246,0.05)', padding: '1rem', borderRadius: '10px', border: '1px solid rgba(59,130,246,0.1)' }}>
-              <div className="input-group">
-                <label className="input-label">Puan Ver (G15)</label>
+            <div className="divider" />
+
+            {/* Review Form */}
+            <h3 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.75rem', marginTop: '0.5rem' }}>
+              Deneyimini Paylaş
+            </h3>
+            <form onSubmit={submitReview} className="review-form">
+              <div className="input-group" style={{ marginBottom: '0.85rem' }}>
+                <label className="input-label">Puan</label>
                 <select className="input-field" value={reviewForm.rating} onChange={e => setReviewForm({...reviewForm, rating: e.target.value})}>
-                  {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} - {'★'.repeat(n)}{'☆'.repeat(5-n)}</option>)}
+                  {[5,4,3,2,1].map(n => <option key={n} value={n}>{'★'.repeat(n)}{'☆'.repeat(5-n)} ({n}/5)</option>)}
                 </select>
               </div>
-              <div className="input-group">
-                <label className="input-label">Yorum Yaz (G16)</label>
-                <textarea className="input-field" rows="2" placeholder="Arac hakkindaki dusuncelerini yaz... (G16)" value={reviewForm.comment}
-                  onChange={e => setReviewForm({...reviewForm, comment: e.target.value})} />
+              <div className="input-group" style={{ marginBottom: '0.85rem' }}>
+                <label className="input-label">Yorum (Opsiyonel)</label>
+                <textarea
+                  className="input-field"
+                  rows="2"
+                  placeholder="Bu araç hakkındaki düşünceleriniz..."
+                  value={reviewForm.comment}
+                  onChange={e => setReviewForm({...reviewForm, comment: e.target.value})}
+                  maxLength={1000}
+                />
               </div>
-              <button className="btn-primary" type="submit" style={{ width: '100%' }}>Gonder (G15-G16)</button>
+              <button className="btn-primary" type="submit" style={{ width: '100%' }}>Değerlendirmeyi Gönder</button>
             </form>
           </div>
         </div>

@@ -16,19 +16,23 @@ const Navigation = ({ isAuthenticated, handleLogout }) => {
 
   return (
     <nav className="glass-panel navbar">
-      <div className="logo"><span>Forensi</span><span>Track</span></div>
+      <div className="logo">
+        <span>Forensi</span><span>Track</span>
+      </div>
       <div className="nav-links">
         {isAuthenticated ? (
           <>
             <Link to="/ads" className={isActive('/ads')}>İlanlar</Link>
             <Link to="/cases" className={isActive('/cases')}>Vakalarım</Link>
-            <Link to="/tools" className={isActive('/tools')}>Adli Araçlar</Link>
+            <Link to="/tools" className={isActive('/tools')}>Araçlar</Link>
             <button className="btn-logout" onClick={onLogout}>Çıkış Yap</button>
           </>
         ) : (
           <>
             <Link to="/login" className={isActive('/login')}>Giriş Yap</Link>
-            <Link to="/register" className={isActive('/register')}>Kayıt Ol</Link>
+            <Link to="/register" className={isActive('/register')}>
+              <span className="btn-primary" style={{ padding: '0.45rem 1.1rem', fontSize: '0.85rem' }}>Kayıt Ol</span>
+            </Link>
           </>
         )}
       </div>

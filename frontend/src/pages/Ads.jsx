@@ -3,24 +3,30 @@ import API_BASE from '../api';
 
 const CATEGORIES = ['Bellek Adli Bilisimi', 'Disk Adli Bilisimi', 'Mobil Adli Bilisimi', 'Ag Adli Bilisimi', 'Bulut Adli Bilisimi'];
 
+const categoryIcons = {
+  'Bellek Adli Bilisimi': 'BA',
+  'Disk Adli Bilisimi': 'DA',
+  'Mobil Adli Bilisimi': 'MA',
+  'Ag Adli Bilisimi': 'AA',
+  'Bulut Adli Bilisimi': 'BU',
+};
+
 const Ads = () => {
   const [ads, setAds] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAd, setEditingAd] = useState(null);
   const [formData, setFormData] = useState({ title: '', description: '', price: '', category: CATEGORIES[0] });
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeSearch, setActiveSearch] = useState(''); // Sadece Ara butonuna basilinca set edilir
+  const [activeSearch, setActiveSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [sortByPrice, setSortByPrice] = useState('');
   const [msg, setMsg] = useState({ text: '', type: '' });
   const token = localStorage.getItem('token');
   const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
 
-  // JWT'den kullanici ID'si al
   let currentUserId = '';
   try { currentUserId = JSON.parse(atob(token.split('.')[1])).userId; } catch (e) { }
 
-  // Sahiplik kontrolu icin: userId karsilastirmasi (ObjectId vs string)
   const isOwner = (ad) => {
     const adUser = ad.userId?._id || ad.userId;
     return String(adUser) === String(currentUserId);
@@ -35,9 +41,6 @@ const Ads = () => {
 
   useEffect(() => { fetchAds(); }, []);
 
-  // Display: her zaman TUM ilanlardan client-side hesaplanir
-  // G7 aramasi sadece Ara butonuna basilinca activeSearch guncellenir
-  // G8 kategori anliktir, G9 fiyat siralama anliktir
   const displayAds = [...ads]
     .filter(ad => {
       const matchSearch = !activeSearch.trim() ||
@@ -52,8 +55,6 @@ const Ads = () => {
       return 0;
     });
 
-
-  // G3: Ilan Ekleme / G5: Ilan Guncelleme
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = editingAd ? `${API_BASE}/api/ads/${editingAd._id}` : `${API_BASE}/api/ads`;
@@ -64,48 +65,48 @@ const Ads = () => {
         setIsModalOpen(false); setEditingAd(null);
         setFormData({ title: '', description: '', price: '', category: CATEGORIES[0] });
         fetchAds();
+        setMsg({ text: editingAd ? 'İlan güncellendi' : 'İlan oluşturuldu', type: 'success' });
+        setTimeout(() => setMsg({ text: '', type: '' }), 3000);
       } else {
         const data = await res.json();
         setMsg({ text: data.message, type: 'error' });
         setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       }
-    } catch (err) { 
-      console.error('handleSubmit error:', err);
-      setMsg({ text: 'Islem basarisiz: ' + err.message, type: 'error' }); 
+    } catch (err) {
+      setMsg({ text: 'İşlem başarısız: ' + err.message, type: 'error' });
       setTimeout(() => setMsg({ text: '', type: '' }), 4000);
     }
   };
 
-  // G6: Ilan Silme
   const deleteAd = async (id) => {
     const ad = ads.find(a => a._id === id);
     if (ad && !isOwner(ad)) {
-      setMsg({ text: 'Sadece kendi ilaninizi silebilirsiniz! (G6 Kurali)', type: 'error' });
+      setMsg({ text: 'Sadece kendi ilanınızı silebilirsiniz.', type: 'error' });
       setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       return;
     }
     try {
       const res = await fetch(`${API_BASE}/api/ads/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (res.ok || res.status === 204) fetchAds();
-      else {
+      if (res.ok || res.status === 204) {
+        fetchAds();
+        setMsg({ text: 'İlan silindi', type: 'success' });
+        setTimeout(() => setMsg({ text: '', type: '' }), 3000);
+      } else {
         const data = await res.json().catch(() => ({}));
-        setMsg({ text: data.message || 'Silme basarisiz (Sunucu hatasi)', type: 'error' });
+        setMsg({ text: data.message || 'Silme başarısız', type: 'error' });
         setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       }
-    } catch (err) { 
-      console.error('deleteAd error:', err);
-      setMsg({ text: 'Silme basarisiz: ' + err.message, type: 'error' }); 
+    } catch (err) {
+      setMsg({ text: 'Silme başarısız: ' + err.message, type: 'error' });
       setTimeout(() => setMsg({ text: '', type: '' }), 4000);
     }
   };
 
-  // G5: Duzenle butonuna basildiginda sahiplik kontrolu
   const openEdit = (ad) => {
     if (!isOwner(ad)) {
-      setMsg({ text: 'Sadece kendi ilaninizi duzenleyebilirsiniz! (G5 Kurali)', type: 'error' });
+      setMsg({ text: 'Sadece kendi ilanınızı düzenleyebilirsiniz.', type: 'error' });
       setTimeout(() => setMsg({ text: '', type: '' }), 4000);
       return;
     }
@@ -120,91 +121,143 @@ const Ads = () => {
     setIsModalOpen(true);
   };
 
-  // G7: Ilan Arama - SADECE Ara butonuna basilinca calisir
   const searchAds = () => {
-    setActiveSearch(searchQuery); // Display aninda guncellenir
-    // Backend API cagrisi - YAML spec G7 geregi
+    setActiveSearch(searchQuery);
     if (searchQuery.trim()) {
       fetch(`${API_BASE}/api/ads/search?query=${encodeURIComponent(searchQuery)}`, { headers })
-        .catch(err => console.error('G7 search API:', err));
+        .catch(err => console.error('Search API:', err));
     }
   };
 
-  // G8: Ilan Filtreleme - dropdown degisince anlik calisir
   const filterAds = (cat) => {
     setFilterCategory(cat);
-    // Backend API cagrisi - YAML spec G8 geregi
     if (cat) {
       fetch(`${API_BASE}/api/ads/filter?category=${encodeURIComponent(cat)}`, { headers })
-        .catch(err => console.error('G8 filter API:', err));
+        .catch(err => console.error('Filter API:', err));
     }
+  };
+
+  const clearFilters = () => {
+    setSearchQuery(''); setActiveSearch(''); setFilterCategory(''); setSortByPrice('');
   };
 
   return (
     <div className="page-container">
-      {msg.text && <div className={`alert ${msg.type === 'error' ? 'alert-error' : 'alert-success'}`} onClick={() => setMsg({ text: '', type: '' })}>{msg.text}</div>}
+      {msg.text && (
+        <div className={`alert ${msg.type === 'error' ? 'alert-error' : 'alert-success'}`} onClick={() => setMsg({ text: '', type: '' })}>
+          {msg.type === 'error' ? '' : ''}{msg.text}
+        </div>
+      )}
+
       <div className="page-header">
-        <h1 className="page-title">Hizmet Ilanlari</h1>
-        <button className="btn-primary" onClick={openNew}>+ Yeni Ilan Ekle (G3)</button>
+        <div>
+          <h1 className="page-title">Hizmet İlanları</h1>
+          <p className="page-subtitle">Adli bilişim uzmanlarının hizmet teklifleri</p>
+        </div>
+        <button className="btn-primary" onClick={openNew}>
+          + Yeni İlan
+        </button>
       </div>
 
-      {/* Arama, Filtre ve Siralama (G7, G8) */}
-      <div className="glass-panel" style={{ padding: '1rem 1.5rem', marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
-        <input className="input-field" style={{ flex: 1, minWidth: '180px' }} placeholder="Ilan ara... (G7)" value={searchQuery}
-          onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === 'Enter' && searchAds()} />
-        <button className="btn-primary" onClick={searchAds}>Ara (G7)</button>
+      {/* Stats */}
+      <div className="stat-row">
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--accent)' }}>{ads.length}</div>
+          <div className="stat-label">Toplam İlan</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--success)' }}>
+            {ads.length > 0 ? Math.min(...ads.map(a => a.price)).toLocaleString('tr-TR') : 0}₺
+          </div>
+          <div className="stat-label">En Düşük Fiyat</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--warning)' }}>
+            {ads.length > 0 ? Math.max(...ads.map(a => a.price)).toLocaleString('tr-TR') : 0}₺
+          </div>
+          <div className="stat-label">En Yüksek Fiyat</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--purple)' }}>
+            {new Set(ads.map(a => a.category)).size}
+          </div>
+          <div className="stat-label">Kategori</div>
+        </div>
+      </div>
+
+      {/* Filter Bar */}
+      <div className="glass-panel filter-bar">
+        <div className="search-wrapper">
+          <input
+            className="input-field"
+            placeholder="İlan ara..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && searchAds()}
+          />
+        </div>
+        <button className="btn-primary" onClick={searchAds} style={{ padding: '0.65rem 1.2rem' }}>Ara</button>
         <select className="input-field" style={{ width: 'auto', minWidth: '180px' }} value={filterCategory} onChange={e => filterAds(e.target.value)}>
-          <option value="">Tum Kategoriler (G8)</option>
+          <option value="">Tüm Kategoriler</option>
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <select className="input-field" style={{ width: 'auto', minWidth: '160px' }} value={sortByPrice} onChange={e => setSortByPrice(e.target.value)}>
-          <option value="">Fiyat Siralama</option>
-          <option value="asc">Ucuzdan Pahaliya</option>
-          <option value="desc">Pahalidan Ucuza</option>
+        <select className="input-field" style={{ width: 'auto', minWidth: '155px' }} value={sortByPrice} onChange={e => setSortByPrice(e.target.value)}>
+          <option value="">Fiyat Sırala</option>
+          <option value="asc">Ucuzdan → Pahalıya</option>
+          <option value="desc">Pahalıdan → Ucuza</option>
         </select>
-        {(searchQuery || activeSearch || filterCategory || sortByPrice) && <button className="btn-secondary" onClick={() => { setSearchQuery(''); setActiveSearch(''); setFilterCategory(''); setSortByPrice(''); }}>Temizle</button>}
+        {(searchQuery || activeSearch || filterCategory || sortByPrice) && (
+          <button className="btn-secondary" onClick={clearFilters} style={{ padding: '0.65rem 1rem' }}>Temizle</button>
+        )}
       </div>
 
-      {/* G4: Ilan Listesi */}
+      {/* Ad Cards */}
       <div className="cards-grid">
         {displayAds.map(ad => (
-          <div key={ad._id} className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.8rem' }}>
-              <span className="badge" style={{ background: 'rgba(59,130,246,0.15)', color: 'var(--accent)' }}>{ad.category}</span>
-              <span style={{ fontSize: '1.2rem', fontWeight: '700', color: '#10b981' }}>{ad.price} TL</span>
+          <div key={ad._id} className="glass-panel ad-card">
+            <div className="ad-card-header">
+              <span className="badge" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>
+                {ad.category}
+              </span>
+              <span className="ad-card-price">{ad.price.toLocaleString('tr-TR')} ₺</span>
             </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.5rem' }}>{ad.title}</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1rem', lineHeight: '1.5', flex: 1 }}>{ad.description}</p>
-            <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto', borderTop: '1px solid var(--glass-border)', paddingTop: '1rem' }}>
-              <button className="btn-secondary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', flex: 1 }} onClick={() => openEdit(ad)}>Duzenle (G5)</button>
-              <button className="btn-danger" style={{ fontSize: '0.8rem', flex: 1 }} onClick={() => deleteAd(ad._id)}>Sil (G6)</button>
+            <h3 className="ad-card-title">{ad.title}</h3>
+            <p className="ad-card-desc">{ad.description}</p>
+            <div className="ad-card-footer">
+              <button className="btn-secondary" style={{ fontSize: '0.82rem', padding: '0.45rem 0.8rem' }} onClick={() => openEdit(ad)}>
+                Düzenle
+              </button>
+              <button className="btn-danger" onClick={() => deleteAd(ad._id)}>
+                Sil
+              </button>
             </div>
           </div>
         ))}
         {displayAds.length === 0 && (
-          <div className="glass-panel" style={{ gridColumn: '1 / -1', padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-            Henuz hizmet ilani bulunmuyor.
+          <div className="glass-panel empty-state">
+            <div className="empty-state-icon"></div>
+            <p className="empty-state-text">Henüz hizmet ilanı bulunmuyor.</p>
           </div>
         )}
       </div>
 
-      {/* Modal (G3/G5) */}
+      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <h2 className="modal-title">{editingAd ? 'Ilani Duzenle (G5)' : 'Yeni Ilan Ekle (G3)'}</h2>
+            <h2 className="modal-title">{editingAd ? 'İlanı Düzenle' : 'Yeni İlan Oluştur'}</h2>
             <form onSubmit={handleSubmit}>
               <div className="input-group">
-                <label className="input-label">Baslik</label>
-                <input className="input-field" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
+                <label className="input-label">Başlık</label>
+                <input className="input-field" placeholder="Hizmet başlığı" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} required />
               </div>
               <div className="input-group">
-                <label className="input-label">Aciklama</label>
-                <textarea className="input-field" rows="3" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} required />
+                <label className="input-label">Açıklama</label>
+                <textarea className="input-field" rows="3" placeholder="Hizmet detayları..." value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} required />
               </div>
               <div className="input-group">
-                <label className="input-label">Fiyat (TL)</label>
-                <input className="input-field" type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
+                <label className="input-label">Fiyat (₺)</label>
+                <input className="input-field" type="number" min="0" placeholder="1500" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} required />
               </div>
               <div className="input-group">
                 <label className="input-label">Kategori</label>
@@ -212,8 +265,12 @@ const Ads = () => {
                   {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-              <button className="btn-primary" type="submit" style={{ width: '100%' }}>{editingAd ? 'Guncelle' : 'Ilani Kaydet'}</button>
-              <button className="btn-secondary" type="button" style={{ width: '100%', marginTop: '0.5rem' }} onClick={() => setIsModalOpen(false)}>Iptal</button>
+              <button className="btn-primary" type="submit" style={{ width: '100%', padding: '0.75rem' }}>
+                {editingAd ? 'Güncelle' : 'İlanı Yayınla'}
+              </button>
+              <button className="btn-secondary" type="button" style={{ width: '100%', marginTop: '0.5rem' }} onClick={() => setIsModalOpen(false)}>
+                İptal
+              </button>
             </form>
           </div>
         </div>

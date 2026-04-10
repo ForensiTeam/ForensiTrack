@@ -1,4 +1,4 @@
-﻿// Author: Ümmühan Atmaca - G9-G16 Gereksinimleri
+// Author: Ümmühan Atmaca - G9-G16 Gereksinimleri
 const Review = require('../models/Review');
 const Tool = require('../models/Tool');
 
@@ -8,12 +8,22 @@ exports.rateTool = async (req, res) => {
     const { toolId, rating } = req.body;
     if (!toolId || !rating) return res.status(400).json({ message: 'toolId ve rating zorunludur.' });
 
+    // GUVENLIK O2: Rating deger kontrolu
+    const numRating = Number(rating);
+    if (!Number.isInteger(numRating) || numRating < 1 || numRating > 5) {
+      return res.status(400).json({ message: 'Rating 1-5 arasinda bir tam sayi olmalidir.' });
+    }
+
+    // Aracin varligini kontrol et
+    const tool = await Tool.findById(toolId);
+    if (!tool) return res.status(404).json({ message: 'Arac bulunamadi.' });
+
     let review = await Review.findOne({ toolId, userId: req.user.userId });
     if (review) {
-      review.rating = rating;
+      review.rating = numRating;
       await review.save();
     } else {
-      review = new Review({ toolId, userId: req.user.userId, rating });
+      review = new Review({ toolId, userId: req.user.userId, rating: numRating });
       await review.save();
     }
 
@@ -26,7 +36,8 @@ exports.rateTool = async (req, res) => {
 
     res.status(200).json(review);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error('rateTool hatasi:', err.message);
+    res.status(400).json({ message: 'Puanlama basarisiz.' });
   }
 };
 
@@ -35,6 +46,15 @@ exports.commentTool = async (req, res) => {
   try {
     const { toolId, comment } = req.body;
     if (!toolId || !comment) return res.status(400).json({ message: 'toolId ve comment zorunludur.' });
+
+    // GUVENLIK O2: Yorum uzunluk kontrolu
+    if (comment.length > 1000) {
+      return res.status(400).json({ message: 'Yorum en fazla 1000 karakter olabilir.' });
+    }
+
+    // Aracin varligini kontrol et
+    const tool = await Tool.findById(toolId);
+    if (!tool) return res.status(404).json({ message: 'Arac bulunamadi.' });
 
     let review = await Review.findOne({ toolId, userId: req.user.userId });
     if (review) {
@@ -47,6 +67,7 @@ exports.commentTool = async (req, res) => {
     
     res.status(200).json(review);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error('commentTool hatasi:', err.message);
+    res.status(400).json({ message: 'Yorum basarisiz.' });
   }
 };
