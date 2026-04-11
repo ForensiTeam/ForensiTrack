@@ -1,6 +1,5 @@
 # Yiğit Bayraktar'ın REST API Metotları
 
-**API Test Videosu:** [https://youtu.be/xv4smOf8WaA](https://youtu.be/xv4smOf8WaA)
 
 ## 1. Kayıt Olma (G1)
 - **Endpoint:** `POST /api/auth/register`

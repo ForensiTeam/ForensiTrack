@@ -1,11 +1,5 @@
 # Video Sunum ve Çekim Planı
 
-## Sunum Videosu
-
-> **Video Linki:** [https://youtu.be/-BQBAJC0ljw](https://youtu.be/-BQBAJC0ljw)
-
----
-
 ## Sunum Yapısı
 
 ### 1. Grup Lideri (Yiğit) - Açılış Konuşması (1-2 dakika)
