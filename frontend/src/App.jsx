@@ -16,8 +16,14 @@ const Navigation = ({ isAuthenticated, handleLogout }) => {
 
   return (
     <nav className="glass-panel navbar">
-      <div className="logo">
-        <span>Forensi</span><span>Track</span>
+      <div className="logo" style={{ display: 'flex', alignItems: 'center', letterSpacing: '0.5px' }}>
+        <span>F</span>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 1px', position: 'relative', top: '1px' }}>
+          <circle cx="10" cy="10" r="7" stroke="#e2e8f0" fill="rgba(56, 189, 248, 0.15)"></circle>
+          <line x1="21" y1="21" x2="15" y2="15" stroke="#94a3b8" strokeWidth="3"></line>
+        </svg>
+        <span>rensi</span>
+        <span style={{ color: 'var(--accent)', marginLeft: '1px' }}>Track</span>
       </div>
       <div className="nav-links">
         {isAuthenticated ? (
